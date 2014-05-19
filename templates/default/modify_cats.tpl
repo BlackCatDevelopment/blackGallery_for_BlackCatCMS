@@ -14,6 +14,12 @@
 </form>
 
 <br /><br />
+<div>
+{translate('The categories are based upon the folder hierarchy in the root folder, so it is not possible to add or delete categories here.')}
+{translate('You may deactivate subfolders that are not to be used for the gallery.')}
+</div>
+
+
 {if $cat_tree}
 <p>
  {translate('Double click on a list item to edit. Drag & drop to sort.')}
@@ -39,7 +45,6 @@
    <span class="icon icon-warning"></span>
    {translate('No categories found, try [Sync categories] button!')}<br />
    {translate('Please make sure to select a root folder first!')} <span class="icon icon-arrow-right"></span> <a href="{$CAT_ADMIN_URL}/pages/modify.php?page_id={$page_id}&amp;do=options">{translate('Options')}</a><br />
-   {translate('Currently selected root folder')}: <span style="color:#407cb4;">{$settings.root_dir}</span><br />
 </div>
 {/if}
 
@@ -81,33 +86,15 @@ if(typeof jQuery != 'undefined') {
         });
 
         var depth = 0;
-        $('ul.cattree_0').sortable({
+        $('ul.cattree').sortable({
             axis: 'y'
-            ,connectWith: ".ui-sortable"
-            ,containment: 'parent'
+            ,containment: "parent"
             ,cursor: "move"
-            ,forcePlaceholderSize: true
-            ,handle: 'div'
             ,items: '> li'
             ,opacity: 0.5
             ,placeholder: "ui-sortable-placeholder"
-            ,revert: true
+//            ,revert: true
             ,tolerance: "pointer"
-            ,toleranceElement: '> div'
-            ,start: function( event, ui ) {
-                depth = ui.item.parentsUntil($('ul.cattree_0')).length;
-                console.log("start depth:" + depth);
-                ui.placeholder.height(ui.item.height());
-                $('ul.cattree_0').css('padding-bottom',(ui.item.height()+15)+"px");
-            }
-            ,stop: function( event, ui ) {
-                console.log('stop depth : ' + ui.item.parentsUntil($('ul.cattree_0')).length);
-                if(ui.item.parentsUntil($('ul.cattree_0')).length != depth)
-                {
-                    $(this).sortable('cancel');           // cancel the sorting!
-                }
-                $('ul.cattree_0').css('padding-bottom','15px');
-            }
             ,update: function( event, ui ) {
                 var dates = {
 					'order':			$(this).sortable('toArray'),
@@ -138,10 +125,6 @@ if(typeof jQuery != 'undefined') {
                     }
                 });
             }
-            // nestedSortable options
-            //,isTree: true
-            //,listType: 'ul'
-            //,protectRoot: true
         }).disableSelection();
 
         $('ul.cattree li').dblclick(function(event) {
@@ -176,6 +159,17 @@ if(typeof jQuery != 'undefined') {
                 $.uniform.update('input#allow_fe_upload');
             }
             $('div#options input#cat_id').val(cat_id);
+            // disable ENTER key
+            $('div#options form').submit(function () { return false; });
+            // bind ENTER to dialog
+            $(document).delegate('.ui-dialog', 'keyup', function(e) {
+                var tagName = e.target.tagName.toLowerCase();
+                tagName = (tagName === 'input' && e.target.type === 'button') ? 'button' : tagName;
+                if (e.which === $.ui.keyCode.ENTER && tagName !== 'textarea' && tagName !== 'select' && tagName !== 'button') {
+                    $(this).find('.ui-dialog-buttonset button').eq(0).trigger('click');
+                    return false;
+                }
+            });
             $('div#options').dialog({
                 width: 600
                 ,height: 400

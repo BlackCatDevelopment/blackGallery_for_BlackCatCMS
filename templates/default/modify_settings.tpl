@@ -4,7 +4,7 @@
     <input type="hidden" name="save" value="1" />
     <fieldset>
         <legend>{translate('Path settings')}</legend>
-        <label for="root_dir">{translate('Root dir')}</label>
+        <label for="root_dir">{translate('Root folder')}</label>
             <span class="tooltip icon icon-help" title="{translate('This is the folder to start with')}"></span>
             <select id="root_dir" name="root_dir">
             {foreach $fg_settings.arr_root_dir dir}
@@ -71,6 +71,40 @@
     </fieldset>
 
     <fieldset>
+        <legend>{translate('Upload options')}</legend>
+        <label for="allow_fe_upload">{translate('Allow frontend upload')}</label>
+            <span class="tooltip icon icon-help" title="{translate('Allows guest users to add images. Please use with care!')}"></span>
+            <select name="allow_fe_upload">
+                <option value="no"{if $selected.allow_fe_upload=='no'} selected="selected"{/if}>{translate('No')}</option>
+                <option value="be_users"{if $selected.allow_fe_upload=='be_users'} selected="selected"{/if}>{translate('Yes, but backend users only')}</option>
+                <option value="everyone"{if $selected.allow_fe_upload=='everyone'} selected="selected"{/if}>{translate('Yes, everyone (attention!)')}</option>
+            </select><br />
+        <span class="label">{translate('Allowed mime types')}</span>
+            <span class="tooltip icon icon-help" title="{translate('The suffix list is derived from the global settings of the CMS')}"></span>
+            {foreach $fg_settings.allowed_suffixes suffix}
+            {if ! $dwoo.foreach.default.first}<span class="label" style="width:230px !important">&nbsp;</span>{/if}
+            <input type="checkbox" id="suffix_{$suffix}" name="suffixes[]" value="{$suffix}"{if in_array($suffix,$fg_settings.suffixes)} checked="checked"{/if} />
+            <label for="suffix_{$suffix}" style="text-align:left;">{$suffix}</label><br />
+            {/foreach}
+        <span class="label">{translate('Image dimensions')}</span>
+            <span class="tooltip icon icon-help" title="{translate('Uploaded images are resized to all sizes marked here.')}"></span>
+            <input type="checkbox" name="sizes[]" id="size_original" value="original" /> <label style="text-align:left;" for="size_original">{translate('Keep original size')}</label><br />
+            <span class="label" style="width:230px !important">&nbsp;</span>
+            <input type="checkbox" name="sizes[]" id="size_800_600" value="800_600" /> <label style="text-align:left;" for="size_800_600">800 x 600</label><br />
+            <span class="label" style="width:230px !important">&nbsp;</span>
+            <input type="checkbox" name="sizes[]" id="size_1024_768" value="1024_768" /> <label style="text-align:left;" for="size_1024_768">1024 x 768</label><br />
+            <span class="label" style="width:230px !important">&nbsp;</span>
+            <input type="checkbox" name="sizes[]" id="size_1600_1000" value="1600_1000" /> <label style="text-align:left;" for="size_1600_1000">1600 x 1000</label><br />
+        <label for="thumb_method">{translate('Resize method')}</label>
+            <span class="tooltip icon icon-help" title="{translate('The resize method defines how to handle overflow')}"></span>
+            <select name="resize_method" id="resize_method">
+                <option value="fit">fit ({translate('Fits image into width and height while keeping original aspect ratio')})</option>
+                <option value="crop">crop ({translate('Crops image to fill the area while keeping original aspect ratio')})</option>
+                <option value="fill">fill ({translate('Fits image into the area without taking care of any ratios. Expect your image to get deformed.')})</option>
+            </select>
+    </fieldset>
+
+    <fieldset>
         <legend>{translate('Other settings')}</legend>
         <label for="default_action">{translate('Default backend tab')}</label>
             <span class="tooltip icon icon-help" title="{translate('Tab to open by default when the page is edited')}"></span>
@@ -106,20 +140,6 @@
                 <option value="default">{translate('default')}</option>
                 <option value="custom">{translate('custom')}</option>
             </select><br />
-        <label for="allow_fe_upload">{translate('Allow frontend upload')}</label>
-            <span class="tooltip icon icon-help" title="{translate('Allows guest users to add images. Please use with care!')}"></span>
-            <select name="allow_fe_upload">
-                <option value="no"{if $selected.allow_fe_upload=='no'} selected="selected"{/if}>{translate('No')}</option>
-                <option value="be_users"{if $selected.allow_fe_upload=='be_users'} selected="selected"{/if}>{translate('Yes, but backend users only')}</option>
-                <option value="everyone"{if $selected.allow_fe_upload=='everyone'} selected="selected"{/if}>{translate('Yes, everyone (attention!)')}</option>
-            </select><br />
-        <span class="label">{translate('Allowed mime types')}</span>
-            <span class="tooltip icon icon-help" title="{translate('The suffix list is derived from the global settings of the CMS')}"></span>
-            {foreach $fg_settings.allowed_suffixes suffix}
-            {if ! $dwoo.foreach.default.first}<span class="label" style="width:230px !important">&nbsp;</span>{/if}
-            <input type="checkbox" id="suffix_{$suffix}" name="suffixes[]" value="{$suffix}"{if in_array($suffix,$fg_settings.suffixes)} checked="checked"{/if} />
-            <label for="suffix_{$suffix}" style="text-align:left;">{$suffix}</label><br />
-            {/foreach}
     </fieldset>
     <button>
         {translate('Save')}

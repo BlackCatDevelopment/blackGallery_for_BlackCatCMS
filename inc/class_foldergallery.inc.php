@@ -142,7 +142,7 @@ if(!class_exists('blackGallery',false))
                 while( false !== ( $row = $r->fetchRow(MYSQL_ASSOC) ) )
                 {
                     $row['_has_thumb']
-                        = ( file_exists(CAT_Helper_Directory::sanitizePath(CAT_PATH.'/'.self::$fg_settings['root_dir'].'/'.$row['folder_name'].'/'.$row['file_name'])) )
+                        = ( file_exists(CAT_Helper_Directory::sanitizePath(CAT_PATH.'/'.self::$fg_settings['root_dir'].'/'.$row['folder_name'].'/'.self::$fg_settings['thumb_foldername'].'/thumb_'.$row['file_name'])) )
                         ? true
                         : false;
                     $imgs[$row['file_name']] = $row;

@@ -39,7 +39,7 @@
         <span class="img_is_active icon icon-{if $img.is_active=='0'}cancel{else}checkmark{/if}"></span>
         <span class="icon icon-{if $img._has_thumb==false}cancel{else}checkmark{/if}" title="{translate('Thumbnail image')} {if $img._has_thumb==false}{translate('not')}{/if}{translate('available')}"></span>
         <span class="icon icon-tools"></span>
-        <img src="{$BASE_URL}{$img.folder_name}/{$settings.thumb_foldername}/thumb_{$img.file_name}" style="width:{$settings.thumb_width}px;" title="{$img.caption}" />
+        <img src="{$BASE_URL}{$img.folder_name}/{if $img._has_thumb!=false}{$settings.thumb_foldername}/thumb_{$img.file_name}{else}{$img.file_name}{/if}" style="width:{$settings.thumb_width}px;" title="{$img.caption}" />
         <span class="dz-details rounded">
             <span class="icon icon-remove" style="float:right;"></span>
             <span class="caption fc_gradient2">"{if $img.caption}{$img.caption}{else}{$img.file_name}{/if}"</span>
