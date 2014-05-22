@@ -1,7 +1,14 @@
 /* globals */
 div#mod_blackgallery .border{border:1px solid #ccc;}
 div#mod_blackgallery .rounded{-webkit-border-radius:4px;-moz-border-radius:4px;-khtml-border-radius:4px;border-radius:4px;}
-
+/* tooltip */
+.ui-tooltip, .arrow:after {background:#E0EDFF;border:1px solid #ccc;}
+.ui-tooltip {padding: 10px 20px;border-radius: 20px;box-shadow: 0 0 7px black;}
+.arrow {width:70px;height:16px;overflow:hidden;position:absolute;left:50%;margin-left:-35px;bottom:-16px;}
+.arrow.top {top:-16px;bottom:auto;}
+.arrow.left {left:20%;}
+.arrow:after {content:"";position:absolute;left:20px;top:-20px;width:25px;height:25px;box-shadow: 6px 5px 9px -8px black;-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);-ms-transform: rotate(45deg);-o-transform: rotate(45deg);tranform: rotate(45deg);}
+.arrow.top:after {bottom:-20px;top:auto;}
 /* nav */
 div#mod_blackgallery .gradient1{background: #e1e1e1;background: -moz-linear-gradient(center top , #f2f2f2, #e1e1e1);background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f2f2f2), color-stop(100%,#e1e1e1));-moz-border-radius: 4px 4px 0 0; -webkit-border-radius: 4px 4px 0 0; border-radius: 4px 4px 0 0;-webkit-box-shadow: 0 1px 0 #FFF inset; -moz-box-shadow: 0 1px 0 #FFF inset;}
 div#mod_blackgallery #tabs {border: 1px solid #dedede;-webkit-border-radius: 4px;-moz-border-radius: 4px;border-radius: 4px;min-height: 205px;position: relative;overflow: hidden;}

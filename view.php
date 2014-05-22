@@ -121,7 +121,7 @@ $_tpl_data['images'] = blackGallery::fgGetImages($section_id,$cat['cat_id']);
 // javascript
 // Lightbox settings
 $lbox = blackGallery::fgGetLightbox();
-$_tpl_data['javascript_code'] = $lbox['lbox_code'];
+$_tpl_data['javascript_code'] = isset($lbox['lbox_code']) ? $lbox['lbox_code']: '';
 
 $_tpl_data['li_width'] = blackGallery::$fg_settings['thumb_width'] + 9;
 $_tpl_data['li_height'] = blackGallery::$fg_settings['thumb_height'] + 9;
@@ -157,19 +157,20 @@ function fgGetCategoryPics(&$categories,$section_id)
                         $item = array_rand($img);
                         break;
                 }
-                if(file_exists(CAT_Helper_Directory::sanitizePath(CAT_PATH.'/'.blackGallery::$fg_settings['root_dir'].'/'.$cat_path.'/'.$img[$item]['file_name'])))
+                $img[$item]['file_name'] = utf8_decode($img[$item]['file_name']);
+                if(file_exists(CAT_Helper_Directory::sanitizePath(CAT_PATH.'/'.blackGallery::$fg_settings['root_dir'].'/'.utf8_decode($cat_path).'/'.$img[$item]['file_name'])))
                 {
-                    if(!file_exists(CAT_Helper_Directory::sanitizePath(CAT_PATH.'/'.blackGallery::$fg_settings['root_dir'].'/'.$cat_path.'/'.blackGallery::$fg_settings['thumb_foldername'].'/thumb_'.$img[$item]['file_name'])))
+                    if(!file_exists(CAT_Helper_Directory::sanitizePath(CAT_PATH.'/'.blackGallery::$fg_settings['root_dir'].'/'.utf8_decode($cat_path).'/'.blackGallery::$fg_settings['thumb_foldername'].'/thumb_'.$img[$item]['file_name'])))
                         CAT_Helper_Image::getInstance()->make_thumb(
-                            CAT_Helper_Directory::sanitizePath(CAT_PATH.'/'.blackGallery::$fg_settings['root_dir'].'/'.$cat_path.'/'.$img[$item]['file_name']),
-                            CAT_Helper_Directory::sanitizePath(CAT_PATH.'/'.blackGallery::$fg_settings['root_dir'].'/'.$cat_path.'/'.blackGallery::$fg_settings['thumb_foldername'].'/thumb_'.$img[$item]['file_name']),
+                            CAT_Helper_Directory::sanitizePath(CAT_PATH.'/'.blackGallery::$fg_settings['root_dir'].'/'.utf8_decode($cat_path).'/'.$img[$item]['file_name']),
+                            CAT_Helper_Directory::sanitizePath(CAT_PATH.'/'.blackGallery::$fg_settings['root_dir'].'/'.utf8_decode($cat_path).'/'.blackGallery::$fg_settings['thumb_foldername'].'/thumb_'.$img[$item]['file_name']),
                             blackGallery::$fg_settings['thumb_width'],
                             blackGallery::$fg_settings['thumb_height'],
                             blackGallery::$fg_settings['thumb_method']
                         );
-                    $categories[$cat_path]['cat_pic'] = $cat_path.'/'.blackGallery::$fg_settings['thumb_foldername'].'/thumb_'.$img[$item]['file_name'];
+                    $categories[$cat_path]['cat_pic'] = $cat_path.'/'.blackGallery::$fg_settings['thumb_foldername'].'/thumb_'.utf8_encode($img[$item]['file_name']);
                 }
             }
         }
     }
-}
+}   // end function fgGetCategoryPics()

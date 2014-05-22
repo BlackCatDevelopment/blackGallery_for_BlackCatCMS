@@ -1,3 +1,10 @@
+{if $cat_is_active == 0}
+<div class="highlight right">
+    {translate('This category is deactivated!')}
+</div>
+{/if}
+
+
 <form id="form_sync_images" action="{$CAT_URL}/modules/blackGallery/ajax/sync_images.php" enctype="application/x-www-form-urlencoded " method="post">
     <input type="hidden" name="section_id" value="{$section_id}" />
     <input type="hidden" name="cat_id" value="{$cat_id}" />
@@ -146,13 +153,14 @@ if(typeof jQuery != 'undefined') {
 				{
                     if ( data.success === true )
 					{
-                        if(data.added > 0)
+                        if(data.added > 0 || data.removed > 0)
                         {
                             $('div#fgDialog')
                                 .html(
                                     '<span class="icon icon-info" style="float:left;margin:0 7px 40px 0;color:#407cb4;font-size:1.4em;text-shadow: 3px 3px 3px #ccc;"></span>' +
-                                    '{translate("Added")} ' + data.added + ' {translate("image(s)")}')
-                                .dialog({
+                                    '{translate("Added")} ' + data.added + ' {translate("image(s)")}<br />' +
+                                    '{translate("Removed")} ' + data.removed + ' {translate("image(s)")}'
+                                ).dialog({
                                     modal: true
                                     ,buttons: {
                                         "{translate('Close')}": function() {
@@ -167,7 +175,7 @@ if(typeof jQuery != 'undefined') {
                             $('div#fgDialog')
                                 .html(
                                     '<span class="icon icon-info" style="float:left;margin:0 7px 40px 0;color:#407cb4;font-size:1.4em;text-shadow: 3px 3px 3px #ccc;"></span>' +
-                                    '{translate("No new images found")}'
+                                    '{translate("No changes found")}'
                                  )
                                 .dialog({
                                     modal: true

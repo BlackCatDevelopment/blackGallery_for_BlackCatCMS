@@ -29,7 +29,8 @@
     <tr>
         <th style="width:50%" class="fc_gradient1">&nbsp;</th>
         <th class="fc_gradient1">
-            <table style="width:400px;border:0;">
+            <table style="width:500px;border:0;">
+                <th>{translate('Edit')}</th>
                 <th>{translate('Active')}</th>
                 <th>{translate('Frontend upload')}</th>
                 <th>{translate('Subfolders')}</th>
@@ -83,6 +84,36 @@ if(typeof jQuery != 'undefined') {
             content:  function() {
                 return  $( this ).attr( "title" );
             }
+        });
+
+        $('span.cat_is_active').click(function() {
+            var cat_id = $(this).parent().parent().parent().prop('id').replace('cat_','');
+            var _that  = $(this);
+            $.ajax({
+                type    : "POST",
+                url     :  CAT_URL + '/modules/blackGallery/ajax/update_cat.php',
+                dataType: 'json',
+                data    : { cat_id: cat_id, switch_active: true },
+                cache   : false,
+                success : function( data, textStatus, jqXHR  )
+				{
+                    if ( data.success === true )
+					{
+                        if( $(_that).hasClass('icon-cancel') )
+                        {
+                            $(_that).removeClass('icon-cancel').addClass('icon-checkmark');
+                        }
+                        else
+                        {
+                            $(_that).removeClass('icon-checkmark').addClass('icon-cancel');
+                        }
+					}
+                }
+            });
+        });
+
+        $('.icon-tools').click(function() {
+            $(this).parent().parent().parent().trigger('dblclick');
         });
 
         var depth = 0;

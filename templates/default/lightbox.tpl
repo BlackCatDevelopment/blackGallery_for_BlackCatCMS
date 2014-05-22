@@ -8,7 +8,7 @@
                 <img src="{$BASE_URL}{$current_path}/{$settings.thumb_foldername}/thumb_{$img.file_name}"
                      alt="{$img.caption}"
                      title="{if $img.caption}{$img.caption}{else}{$img.file_name}{/if}" />
-                <span class="caption rounded gradient1">{$img.description}</span>
+                <span class="caption rounded gradient1">{if $img.description}{$img.description}{else}{$img.file_name}{/if}</span>
             </a>
     	</li>
     {/foreach}

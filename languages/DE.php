@@ -119,6 +119,7 @@ $LANG = array(
     'Please note!'                    => 'Bitte beachten!',
     'Re-ordered successfully'         => 'Erfolgreich sortiert',
     'Show empty categories'           => 'Leere Kategorien anzeigen',
+    'This category is deactivated!'   => 'Diese Kategorie ist deaktiviert!',
     'Thumb creation method'           => 'Methode für Thumb-Erzeugung',
     'Title for categories overview'   => 'Überschrift für Kategorieliste',
     'Title for images overview'       => 'Überschrift für Bilderliste',

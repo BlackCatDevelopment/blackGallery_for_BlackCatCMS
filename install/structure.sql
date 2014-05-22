@@ -36,13 +36,14 @@ CREATE TABLE IF NOT EXISTS `cat_mod_blackgallery_settings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `cat_mod_blackgallery_lboxes` (
-	`lbox_id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-	`lbox_name` VARCHAR(50) NOT NULL,
-	`lbox_path` TEXT NOT NULL,
-	`lbox_js` TEXT NOT NULL,
-	`lbox_css` TEXT NOT NULL,
-	`lbox_code` TEXT NOT NULL,
-	`lbox_template` TEXT NOT NULL,
+  `lbox_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `section_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `lbox_name` varchar(50) NOT NULL,
+  `lbox_path` text NOT NULL,
+  `lbox_js` text NOT NULL,
+  `lbox_css` text NOT NULL,
+  `lbox_code` text NOT NULL,
+  `lbox_template` text NOT NULL,
 	PRIMARY KEY (`lbox_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

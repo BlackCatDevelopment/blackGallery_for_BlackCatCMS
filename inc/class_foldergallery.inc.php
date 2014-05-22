@@ -87,7 +87,7 @@ if(!class_exists('blackGallery',false))
             if($r->numRows())
                 return $r->fetchRow(MYSQL_ASSOC);
         }   // end function fgGetImage()
-        
+
         /**
          * get images
          *
@@ -119,7 +119,7 @@ if(!class_exists('blackGallery',false))
                     $imgs[$row['file_name'].'#'.$row['cat_id']] = $row;
             return $imgs;
         }   // end function fgGetImages()
-        
+
         /**
          *
          * @access public
@@ -142,7 +142,10 @@ if(!class_exists('blackGallery',false))
                 while( false !== ( $row = $r->fetchRow(MYSQL_ASSOC) ) )
                 {
                     $row['_has_thumb']
-                        = ( file_exists(CAT_Helper_Directory::sanitizePath(CAT_PATH.'/'.self::$fg_settings['root_dir'].'/'.$row['folder_name'].'/'.self::$fg_settings['thumb_foldername'].'/thumb_'.$row['file_name'])) )
+                        = ( file_exists(CAT_Helper_Directory::sanitizePath(
+                              CAT_PATH.'/'.self::$fg_settings['root_dir'].'/'.utf8_decode($row['folder_name']).'/'
+                              .self::$fg_settings['thumb_foldername'].'/thumb_'.utf8_decode($row['file_name'])))
+                          )
                         ? true
                         : false;
                     $imgs[$row['file_name']] = $row;
@@ -150,7 +153,7 @@ if(!class_exists('blackGallery',false))
             }
             return $imgs;
         }   // end function fgGetAllImageData()
-        
+
 
         /**
          * get category list
@@ -222,7 +225,26 @@ if(!class_exists('blackGallery',false))
             }
             return NULL;
         }   // end function fgGetCat()
-        
+
+        /**
+         *
+         * @access public
+         * @return
+         **/
+        public static function fgGetCatDetail($cat_id,$key)
+        {
+            global $database;
+            $r    = $database->query(sprintf(
+                'SELECT `%s` FROM `%smod_blackgallery_categories` WHERE `cat_id`="%d"',
+                $key, CAT_TABLE_PREFIX, $cat_id
+            ));
+            if( $r && $r->numRows() )
+            {
+                $row = $r->fetchRow(MYSQL_ASSOC);
+                return $row[$key];
+            }
+            return NULL;
+        }   // end function fgGetCatDetail()
 
         /**
          *
@@ -231,19 +253,9 @@ if(!class_exists('blackGallery',false))
          **/
         public static function fgGetCatName($cat_id)
         {
-            global $database;
-            $r    = $database->query(sprintf(
-                'SELECT `cat_name` FROM `%smod_blackgallery_categories` WHERE `cat_id`="%d"',
-                CAT_TABLE_PREFIX, $cat_id
-            ));
-            if( $r && $r->numRows() )
-            {
-                $row = $r->fetchRow(MYSQL_ASSOC);
-                return $row['cat_name'];
-            }
-            return NULL;
+            return self::fgGetCatDetail($cat_id,'cat_name');
         }   // end function fgGetCatName()
-        
+
         /**
          *
          * @access public
@@ -251,17 +263,7 @@ if(!class_exists('blackGallery',false))
          **/
         public static function fgGetCatPath($cat_id)
         {
-            global $database;
-            $r    = $database->query(sprintf(
-                'SELECT `folder_name` FROM `%smod_blackgallery_categories` WHERE `cat_id`="%d"',
-                CAT_TABLE_PREFIX, $cat_id
-            ));
-            if( $r && $r->numRows() )
-            {
-                $row = $r->fetchRow(MYSQL_ASSOC);
-                return $row['folder_name'];
-            }
-            return NULL;
+            return self::fgGetCatDetail($cat_id,'folder_name');
         }   // end function fgGetCatPath()
 
         /**
@@ -272,9 +274,9 @@ if(!class_exists('blackGallery',false))
         public static function fgGetLightbox()
         {
             global $database;
-            $data = array();
             $lbox = self::$fg_settings['lightbox'];
             if(!$lbox) $lbox = 'Slimbox2';
+            $data = array($lbox=>array());
             $q = sprintf(
                 'SELECT * FROM `%smod_blackgallery_lboxes` WHERE `lbox_name`="%s"',
                 CAT_TABLE_PREFIX, $lbox
@@ -315,7 +317,7 @@ if(!class_exists('blackGallery',false))
                     $b[$row['lbox_name']] = 1;
             return $b;
         }   // end function fgGetLightboxes()
-        
+
         /**
          *
          * @access public
@@ -338,7 +340,7 @@ if(!class_exists('blackGallery',false))
                 return self::fgUpdateImages($images,$result,$root_dir);
             }
         }   // end function fgSyncAllImages()
-        
+
         /**
          * reads available image files from the file system; uses allowed
          * suffixes as filter
@@ -356,7 +358,7 @@ if(!class_exists('blackGallery',false))
 
             $cat_path = self::fgGetCatPath($cat_id);
             $result   = CAT_Helper_Directory::getInstance()
-                        ->setSuffixFilter(array_keys($allowed))
+                        ->setSuffixFilter($allowed)
                         ->setRecursion(false)
                         ->getFiles(CAT_Helper_Directory::sanitizePath(
                             utf8_decode($root_dir).'/'.utf8_decode($cat_path)),
@@ -368,6 +370,11 @@ if(!class_exists('blackGallery',false))
                 if($checkonly) return(count($result));
                 $images     = blackGallery::fgGetImages($section_id,$cat_id,true);
                 return self::fgUpdateImages($images,$result,$root_dir);
+            }
+            else
+            {
+                if($checkonly) return(count($result));
+                else           return false;
             }
         }   // end function fgSyncImagesForCat()
 
@@ -382,13 +389,18 @@ if(!class_exists('blackGallery',false))
 
             $categories = blackGallery::fgGetCategories($section_id,true);
             $new        = 0;
-            $path_seen  = array();;
+            $removed    = 0;
+            $path_seen  = array();
+            $cats_seen  = array();
+            $pic_seen   = array();
 
+            // add
             foreach($result as $item)
             {
-
+                
                 $path = str_replace('\\', '/', pathinfo($item,PATHINFO_DIRNAME));
                 $file = pathinfo($item,PATHINFO_BASENAME);
+                $pic_seen[$file] = 1;
 
                 // remove root_dir from path
                 $path = str_ireplace($root_dir,"",$path);
@@ -411,9 +423,10 @@ if(!class_exists('blackGallery',false))
                     {
                         $r = $database->query(sprintf(
                             'INSERT INTO `%smod_blackgallery_images` VALUES (NULL,"%d","%d","%s","%s",0,"","",1)',
-                            CAT_TABLE_PREFIX, $section_id, $cat_id, $file, $size
+                            CAT_TABLE_PREFIX, $section_id, $cat_id, utf8_encode($file), $size
                         ));
                         $new++;
+                        $cats_seen[$cat_id] = 1;
                     }
                 }
                 else
@@ -438,7 +451,46 @@ if(!class_exists('blackGallery',false))
 
             }
 
-            return $new;
+            // remove
+            if(count($path_seen))
+            {
+                foreach(array_keys($path_seen) as $path)
+                {
+                    if(array_key_exists($path,$categories))
+                    {
+                        $cat    = $categories[$path];
+                        $images = blackGallery::fgGetImages($section_id,$cat['cat_id'],true);
+                        foreach($images as $img)
+                        {
+                            if(!array_key_exists($img['file_name'],$pic_seen))
+                            {
+                                $q = sprintf(
+                                    'DELETE FROM `%smod_blackgallery_images` WHERE `pic_id`="%d"',
+                                    CAT_TABLE_PREFIX, $img['pic_id']
+                                );
+                                $r = $database->query($q);
+                                $removed++;
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            // set categories to 'not empty'
+            if(count($cats_seen))
+            {
+                foreach(array_keys($cats_seen) as $cat_id)
+                {
+                    $q = sprintf(
+                        'UPDATE `%smod_blackgallery_categories` SET `is_empty`="%d" WHERE `cat_id`="%d"',
+                        CAT_TABLE_PREFIX, 0, $cat_id
+                    );
+                    $database->query($q);
+                }
+            }
+
+            return array( 'added' => $new, 'removed' => $removed );
         }   // end function fgUpdateImages()
 
         /**
@@ -456,7 +508,7 @@ if(!class_exists('blackGallery',false))
             $cat_path  = blackGallery::fgGetCatPath($cat_id);
             $base_path = CAT_Helper_Directory::sanitizePath($root_dir.'/'.utf8_decode($cat_path));
             $result    = CAT_Helper_Directory::getInstance()
-                         ->setSuffixFilter(array_keys($allowed))
+                         ->setSuffixFilter($allowed)
                          ->setSkipDirs(array(blackGallery::$fg_settings['thumb_foldername']))
                          ->setRecursion(false)
                          ->getFiles($base_path,$root_dir);
@@ -483,7 +535,7 @@ if(!class_exists('blackGallery',false))
                 }
             }
         }   // end function fgUpdateThumbs()
-        
+
 
         /**
          *
@@ -607,8 +659,8 @@ if(!class_exists('blackGallery',false))
 
             return $errors;
         }   // end function fgSyncCategories()
-        
-        
+
+
 
         /**
          *
@@ -623,7 +675,7 @@ if(!class_exists('blackGallery',false))
             }
             return $la - $lb;
         }   // end function lensort()
-        
+
 
     }
 }

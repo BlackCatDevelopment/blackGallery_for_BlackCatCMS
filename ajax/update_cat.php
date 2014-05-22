@@ -71,6 +71,19 @@ if($reorder && $reorder!='')
 	print json_encode( $ajax );
 	exit();
 }
+elseif($val->sanitizePost('switch_active'))
+{
+    $current     = blackGallery::fgGetCatDetail($cat_id,'is_active');
+    $database->query(sprintf(
+        'UPDATE `%smod_blackgallery_categories` SET `is_active`="%s" WHERE `cat_id`="%d"',
+        CAT_TABLE_PREFIX, ( $current == 0 ? 1 : 0 ), $cat_id
+    ));
+    print json_encode(array(
+        'success' => ( $database->is_error() ? false : true ),
+        'message' => ( $database->is_error() ? $database->get_error() : 'Success' )
+    ));
+    exit();
+}
 else
 {
     $cat_name    = $val->sanitizePost('cat_name');

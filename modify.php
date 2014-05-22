@@ -75,20 +75,7 @@ switch ($action)
         break;
     case 'images':
     default:
-        $cat_id = CAT_Helper_Validate::sanitizeGet('cat_id');
-        $_tpl_data['categories']     = blackGallery::fgGetCategories($section_id,true);
-        if(!$cat_id && is_array($_tpl_data['categories']) && count($_tpl_data['categories']))
-            $cat_id = $_tpl_data['categories'][key($_tpl_data['categories'])]['cat_id'];
-        if(!$cat_id)
-            $cat_id = -1;
-        $_tpl_data['cat_id']         = $cat_id;
-        $_tpl_data['current_cat']    = blackGallery::fgGetCatName($cat_id);
-        $_tpl_data['images']         = blackGallery::fgGetAllImageData($section_id,$cat_id);
-        $_tpl_data['current_tab']    = "images";
-        $_tpl_data['cat_select']     = CAT_Helper_ListBuilder::getInstance()
-                                     ->config(array('__id_key'=>'cat_id','__title_key'=>'cat_name','__is_open_key'=>'cat_id','space'=>'-'))
-                                     ->dropdown('cat_id',$_tpl_data['categories'],0,$cat_id);
-        $_tpl_data['content']        = $parser->get('modify_images',$_tpl_data);
+        fgRenderImages($section_id);
         break;
 
 }
@@ -121,7 +108,17 @@ function fgCheckSettings($media_folder)
         blackGallery::$fg_settings['suffixes']     = blackGallery::$fg_settings['allowed_suffixes'];
     if(!is_array(blackGallery::$fg_settings['suffixes']))
         blackGallery::$fg_settings['suffixes']     = explode(',',blackGallery::$fg_settings['suffixes']);
+    if(!is_array(blackGallery::$fg_settings['sizes']))
+        blackGallery::$fg_settings['sizes']        = explode(',',blackGallery::$fg_settings['sizes']);
     blackGallery::$fg_settings['arr_lboxes']       = array_keys($lboxes);
+    foreach( blackGallery::$fg_settings['arr_exclude_dirs'] as $i => $item )
+    {
+        blackGallery::$fg_settings['arr_exclude_dirs'][$i] = utf8_encode($item);
+    }
+    foreach( blackGallery::$fg_settings['arr_root_dir'] as $i => $item )
+    {
+        blackGallery::$fg_settings['arr_root_dir'][$i] = utf8_encode($item);
+    }
     return $selected;
 }   // end function fgCheckSettings()
 
@@ -231,6 +228,37 @@ function fgRenderCategories($section_id)
     $_tpl_data['current_tab'] = "cats";
     $_tpl_data['content']     = $parser->get('modify_cats',$_tpl_data);
 }   // end function fgRenderCategories()
+
+function fgRenderImages($section_id)
+{
+    global $_tpl_data, $parser;
+
+    $cat_id = CAT_Helper_Validate::sanitizeGet('cat_id');
+    $_tpl_data['categories']     = blackGallery::fgGetCategories($section_id,true);
+    if(!$cat_id && is_array($_tpl_data['categories']) && count($_tpl_data['categories']))
+        $cat_id = $_tpl_data['categories'][key($_tpl_data['categories'])]['cat_id'];
+    if(!$cat_id)
+        $cat_id = -1;
+    // add folder name to category name for dropdown (if different)
+    foreach(array_keys($_tpl_data['categories']) as $i)
+    {
+        $_tpl_data['categories'][$i]['cat_name'] .= ' ('.blackGallery::fgCountImages($_tpl_data['categories'][$i]['cat_id']).')';
+        if($_tpl_data['categories'][$i]['cat_name'] != pathinfo($_tpl_data['categories'][$i]['folder_name'],PATHINFO_BASENAME))
+        {
+            $_tpl_data['categories'][$i]['cat_name'] .= ' - ('.$_tpl_data['categories'][$i]['folder_name'].')';
+        }
+
+    }
+    $_tpl_data['cat_id']         = $cat_id;
+    $_tpl_data['current_cat']    = blackGallery::fgGetCatName($cat_id);
+    $_tpl_data['cat_is_active']  = blackGallery::fgGetCatDetail($cat_id,'is_active');
+    $_tpl_data['images']         = blackGallery::fgGetAllImageData($section_id,$cat_id);
+    $_tpl_data['current_tab']    = "images";
+    $_tpl_data['cat_select']     = CAT_Helper_ListBuilder::getInstance()
+                                 ->config(array('__id_key'=>'cat_id','__title_key'=>'cat_name','__is_open_key'=>'cat_id','space'=>'|--'))
+                                 ->dropdown('cat_id',$_tpl_data['categories'],0,$cat_id);
+    $_tpl_data['content']        = $parser->get('modify_images',$_tpl_data);
+}   // end function fgRenderImages()
 
 function fgRenderLightboxForm()
 {

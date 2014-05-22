@@ -50,7 +50,8 @@ foreach(
         'ajax/sync_thumbs.php',
         'ajax/update_cat.php',
         'ajax/update_image.php',
-        'ajax/upload.php'
+        'ajax/upload.php',
+        'ajax/update_lightbox.php'
 	)
 	as $file
 ) {

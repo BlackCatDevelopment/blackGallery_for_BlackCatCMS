@@ -68,21 +68,21 @@ if(!is_array(blackGallery::$fg_settings) || !isset(blackGallery::$fg_settings['r
 
 $root_dir = CAT_Helper_Directory::sanitizePath(CAT_PATH.'/'.blackGallery::$fg_settings['root_dir']);
 $allowed  = CAT_Helper_Mime::getAllowedFileSuffixes('image/*');
-$added    = 0;
 
 if($all)
 {
-    $added = blackGallery::fgSyncAllImages($root_dir,$allowed);
+    $result  = blackGallery::fgSyncAllImages($root_dir,$allowed);
 }
 else
 {
-    $added = blackGallery::fgSyncImagesForCat($cat_id,$root_dir,$allowed);
+    $result = blackGallery::fgSyncImagesForCat($cat_id,$root_dir,$allowed);
     blackGallery::fgUpdateThumbs($cat_id);
 }
 
 print json_encode(array(
     'success' => true,
-    'added'   => $added,
+    'added'   => isset($result['added']) ? $result['added'] : 0,
+    'removed' => isset($result['removed']) ? $result['removed'] : 0,
     'message' => 'Success'
 ));
 exit();

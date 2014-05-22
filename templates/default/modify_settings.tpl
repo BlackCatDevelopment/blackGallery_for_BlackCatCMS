@@ -88,13 +88,13 @@
             {/foreach}
         <span class="label">{translate('Image dimensions')}</span>
             <span class="tooltip icon icon-help" title="{translate('Uploaded images are resized to all sizes marked here.')}"></span>
-            <input type="checkbox" name="sizes[]" id="size_original" value="original" /> <label style="text-align:left;" for="size_original">{translate('Keep original size')}</label><br />
+            <input type="checkbox" name="sizes[]" id="size_original" value="original"{if in_array('original',$fg_settings.sizes)} checked="checked"{/if} /> <label style="text-align:left;" for="size_original">{translate('Keep original size')}</label><br />
             <span class="label" style="width:230px !important">&nbsp;</span>
-            <input type="checkbox" name="sizes[]" id="size_800_600" value="800_600" /> <label style="text-align:left;" for="size_800_600">800 x 600</label><br />
+            <input type="checkbox" name="sizes[]" id="size_800_600" value="800_600"{if in_array('800_600',$fg_settings.sizes)} checked="checked"{/if} /> <label style="text-align:left;" for="size_800_600">800 x 600</label><br />
             <span class="label" style="width:230px !important">&nbsp;</span>
-            <input type="checkbox" name="sizes[]" id="size_1024_768" value="1024_768" /> <label style="text-align:left;" for="size_1024_768">1024 x 768</label><br />
+            <input type="checkbox" name="sizes[]" id="size_1024_768" value="1024_768"{if in_array('1024_768',$fg_settings.sizes)} checked="checked"{/if} /> <label style="text-align:left;" for="size_1024_768">1024 x 768</label><br />
             <span class="label" style="width:230px !important">&nbsp;</span>
-            <input type="checkbox" name="sizes[]" id="size_1600_1000" value="1600_1000" /> <label style="text-align:left;" for="size_1600_1000">1600 x 1000</label><br />
+            <input type="checkbox" name="sizes[]" id="size_1600_1000" value="1600_1000"{if in_array('1600_1000',$fg_settings.sizes)} checked="checked"{/if} /> <label style="text-align:left;" for="size_1600_1000">1600 x 1000</label><br />
         <label for="thumb_method">{translate('Resize method')}</label>
             <span class="tooltip icon icon-help" title="{translate('The resize method defines how to handle overflow')}"></span>
             <select name="resize_method" id="resize_method">
@@ -167,11 +167,24 @@
                 ,minHeight: 22
             });
             $('.tooltip').tooltip({
-                track: true,
                 content: function() {
                     return $( this ).attr( "title" );
+                },
+                position: {
+                    my: "center bottom-20",
+                    at: "center top",
+                    using: function( position, feedback ) {
+                        $( this ).css( position );
+                        $( "<div>" )
+                        .addClass( "arrow" )
+                        .addClass( feedback.vertical )
+                        .addClass( feedback.horizontal )
+                        .appendTo( this );
+                    }
                 }
             });
+// for styling, activate next line (opens first tooltip on page)
+//$( ".tooltip:first" ).tooltip( "open" );
             $('select#root_dir').change(function(e) {
                 $('div#fgDlg').dialog({
                     modal:true
