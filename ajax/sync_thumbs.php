@@ -15,8 +15,8 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *   @author          BlackBird Webprogrammierung
- *   @copyright       2013, Black Cat Development
- *   @link            http://blackcat-cms.org
+ *   @copyright       2014, BlackBird Webprogrammierung
+ *   @link            http://www.webbird.de
  *   @license         http://www.gnu.org/licenses/gpl.html
  *   @category        CAT_Modules
  *   @package         blackGallery
@@ -54,9 +54,9 @@ global $section_id;
 $section_id = CAT_Helper_Validate::sanitizeGet('section_id');
 $cat_id     = CAT_Helper_Validate::sanitizeGet('cat_id');
 include dirname(__FILE__).'/../init.php';
-include dirname(__FILE__).'/../inc/class_foldergallery.inc.php';
+include dirname(__FILE__).'/../inc/blackGallery.inc.php';
 
-blackGallery::fgUpdateThumbs($cat_id);
+blackGallery::bgUpdateThumbs($cat_id);
 
 print json_encode(array(
     'success' => true,

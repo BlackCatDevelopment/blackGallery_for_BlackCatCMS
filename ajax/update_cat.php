@@ -15,8 +15,8 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *   @author          BlackBird Webprogrammierung
- *   @copyright       2013, Black Cat Development
- *   @link            http://blackcat-cms.org
+ *   @copyright       2014, BlackBird Webprogrammierung
+ *   @link            http://www.webbird.de
  *   @license         http://www.gnu.org/licenses/gpl.html
  *   @category        CAT_Modules
  *   @package         blackGallery
@@ -73,7 +73,7 @@ if($reorder && $reorder!='')
 }
 elseif($val->sanitizePost('switch_active'))
 {
-    $current     = blackGallery::fgGetCatDetail($cat_id,'is_active');
+    $current     = blackGallery::bgGetCatDetail($cat_id,'is_active');
     $database->query(sprintf(
         'UPDATE `%smod_blackgallery_categories` SET `is_active`="%s" WHERE `cat_id`="%d"',
         CAT_TABLE_PREFIX, ( $current == 0 ? 1 : 0 ), $cat_id
@@ -94,10 +94,13 @@ else
     $allow_fe_up = ( $val->sanitizePost('allow_fe_upload') == 1 && $is_active == 1 )
                  ? 1
                  : 0;
-    $cat_pic     = $val->sanitizePost('cat_pic');
+    $cat_pic_m   = $val->sanitizePost('cat_pic_method');
+    $cat_pic     = ( $cat_pic_m == 'spec' )
+                 ? $val->sanitizePost('cat_pic_select')
+                 : '';
     $database->query(sprintf(
-        'UPDATE `%smod_blackgallery_categories` SET `cat_name`="%s", `cat_pic`="%s", `description`="%s", `is_active`="%s", `allow_fe_upload`="%s" WHERE `cat_id`="%d"',
-        CAT_TABLE_PREFIX, $cat_name, $cat_pic, $description, $is_active, $allow_fe_up, $cat_id
+        'UPDATE `%smod_blackgallery_categories` SET `cat_name`="%s", `cat_pic`="%s", `cat_pic_method`="%s", `description`="%s", `is_active`="%s", `allow_fe_upload`="%s" WHERE `cat_id`="%d"',
+        CAT_TABLE_PREFIX, $cat_name, $cat_pic, $cat_pic_m, $description, $is_active, $allow_fe_up, $cat_id
     ));
     print json_encode(array(
         'success' => ( $database->is_error() ? false : true ),

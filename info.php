@@ -15,8 +15,8 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *   @author          BlackBird Webprogrammierung
- *   @copyright       2013, Black Cat Development
- *   @link            http://blackcat-cms.org
+ *   @copyright       2014, BlackBird Webprogrammierung
+ *   @link            http://www.webbird.de
  *   @license         http://www.gnu.org/licenses/gpl.html
  *   @category        CAT_Modules
  *   @package         blackGallery
@@ -43,8 +43,8 @@ $module_name = "blackGallery";
 $module_directory = "blackGallery";
 $module_type = "module";
 $module_function = "page";
-$module_description = "Creates an image gallery based on an existing directory structure. Inspired by the popular FG for Websitebaker, but completely rewritten for BlackCat CMS.";
-$module_version = "0.4";
+$module_description = "Creates an image gallery based on an existing directory structure. Inspired by the popular FolderGallery for Website Baker, but completely rewritten for BlackCat CMS.";
+$module_version = "0.10";
 $module_platform = "1.x";
 $module_author = "BlackBird Webprogrammierung";
 $module_guid = "F70C37F8-C73E-A016-FD63-3F3166B7AFC1";

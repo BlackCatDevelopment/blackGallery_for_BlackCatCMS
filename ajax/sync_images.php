@@ -15,8 +15,8 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *   @author          BlackBird Webprogrammierung
- *   @copyright       2013, Black Cat Development
- *   @link            http://blackcat-cms.org
+ *   @copyright       2014, BlackBird Webprogrammierung
+ *   @link            http://www.webbird.de
  *   @license         http://www.gnu.org/licenses/gpl.html
  *   @category        CAT_Modules
  *   @package         blackGallery
@@ -55,9 +55,9 @@ if(!$user->is_authenticated())
 }
 
 include dirname(__FILE__).'/../init.php';
-include dirname(__FILE__).'/../inc/class_foldergallery.inc.php';
+include dirname(__FILE__).'/../inc/blackGallery.inc.php';
 
-if(!is_array(blackGallery::$fg_settings) || !isset(blackGallery::$fg_settings['root_dir']))
+if(!is_array(blackGallery::$bg_settings) || !isset(blackGallery::$bg_settings['root_dir']))
 {
     print json_encode(array(
 		'message'	=> $val->lang()->translate('Invalid data, unable to sync!'),
@@ -66,23 +66,24 @@ if(!is_array(blackGallery::$fg_settings) || !isset(blackGallery::$fg_settings['r
     exit();
 }
 
-$root_dir = CAT_Helper_Directory::sanitizePath(CAT_PATH.'/'.blackGallery::$fg_settings['root_dir']);
+$root_dir = CAT_Helper_Directory::sanitizePath(CAT_PATH.'/'.blackGallery::$bg_settings['root_dir']);
 $allowed  = CAT_Helper_Mime::getAllowedFileSuffixes('image/*');
 
 if($all)
 {
-    $result  = blackGallery::fgSyncAllImages($root_dir,$allowed);
+    $result  = blackGallery::bgSyncAllImages($root_dir,$allowed);
 }
 else
 {
-    $result = blackGallery::fgSyncImagesForCat($cat_id,$root_dir,$allowed);
-    blackGallery::fgUpdateThumbs($cat_id);
+    $result = blackGallery::bgSyncImagesForCat($cat_id,$root_dir,$allowed);
+    blackGallery::bgUpdateThumbs($cat_id);
 }
 
 print json_encode(array(
     'success' => true,
-    'added'   => isset($result['added']) ? $result['added'] : 0,
+    'added'   => isset($result['added'])   ? $result['added']   : 0,
     'removed' => isset($result['removed']) ? $result['removed'] : 0,
+    'errors'  => isset($result['errors'])  ? $result['errors']  : 0,
     'message' => 'Success'
 ));
 exit();

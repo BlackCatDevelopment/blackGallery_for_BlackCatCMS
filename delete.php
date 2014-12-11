@@ -15,8 +15,8 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *   @author          BlackBird Webprogrammierung
- *   @copyright       2013, Black Cat Development
- *   @link            http://blackcat-cms.org
+ *   @copyright       2014, BlackBird Webprogrammierung
+ *   @link            http://www.webbird.de
  *   @license         http://www.gnu.org/licenses/gpl.html
  *   @category        CAT_Modules
  *   @package         blackGallery
@@ -39,18 +39,20 @@ if (defined('CAT_PATH')) {
     if (!$inc) trigger_error(sprintf("[ <b>%s</b> ] Can't include class.secure.php!", $_SERVER['SCRIPT_NAME']), E_USER_ERROR);
 }
 
+global $database;
+
 // delete settings
 $database->query(sprintf(
-    'DELETE FROM `%smod_blackgallery_settings` WHERE `section_id`="%d"',
-    CAT_TABLE_PREFIX, $section_id
+    'DELETE FROM `:prefix:mod_blackgallery_settings` WHERE `section_id`="%d"',
+    $section_id
 ));
 // delete categories
 $database->query(sprintf(
-    'DELETE FROM `%smod_blackgallery_categories` WHERE `section_id`="%d"',
-    CAT_TABLE_PREFIX, $section_id
+    'DELETE FROM `:prefix:mod_blackgallery_categories` WHERE `section_id`="%d"',
+    $section_id
 ));
 // delete images
 $database->query(sprintf(
-    'DELETE FROM `%smod_blackgallery_images` WHERE `section_id`="%d"',
-    CAT_TABLE_PREFIX, $section_id
+    'DELETE FROM `:prefix:mod_blackgallery_images` WHERE `section_id`="%d"',
+    $section_id
 ));

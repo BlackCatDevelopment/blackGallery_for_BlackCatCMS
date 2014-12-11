@@ -15,8 +15,8 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *   @author          BlackBird Webprogrammierung
- *   @copyright       2013, Black Cat Development
- *   @link            http://blackcat-cms.org
+ *   @copyright       2014, BlackBird Webprogrammierung
+ *   @link            http://www.webbird.de
  *   @license         http://www.gnu.org/licenses/gpl.html
  *   @category        CAT_Modules
  *   @package         blackGallery
@@ -43,6 +43,15 @@ include dirname(__FILE__).'/../init.php';
 
 $root_dir  = CAT_Helper_Validate::sanitizeGet('dir');
 $excl_dirs = CAT_Helper_Directory::getDirectories( CAT_PATH.$root_dir, CAT_PATH );
-
-print json_encode( array('dirs'=>$excl_dirs) );
+echo json_encode( array( 'dirs' => utf8_encode_all($excl_dirs) ), JSON_UNESCAPED_UNICODE );
 exit();
+
+// http://de1.php.net/manual/de/function.json-encode.php#100492
+function utf8_encode_all($dat) // -- It returns $dat encoded to UTF8
+{
+    if (is_string($dat)) return utf8_encode($dat);
+    if (!is_array($dat)) return $dat;
+    $ret = array();
+    foreach($dat as $i=>$d) $ret[$i] = utf8_encode_all($d);
+    return $ret;
+}

@@ -14,6 +14,7 @@
 </form>
 
 <br /><br />
+
 <div>
 {translate('The categories are based upon the folder hierarchy in the root folder, so it is not possible to add or delete categories here.')}
 {translate('You may deactivate subfolders that are not to be used for the gallery.')}
@@ -62,17 +63,20 @@
             <input type="checkbox" id="is_active" name="is_active" value="1" /><br />
         <label for="allow_fe_upload">{translate('Allow frontend upload')}</label>
             <input type="checkbox" id="allow_fe_upload" name="allow_fe_upload" value="1" /><br />
-        <label for="cat_pic">{translate('Category picture')}</label>
-            <select id="cat_pic" name="cat_pic">
+        <label for="cat_pic_method">{translate('Category picture')}</label>
+            <select id="cat_pic_method" name="cat_pic_method">
                 <option value="">{translate('use global default')}</option>
                 <option value="first">{translate('first')}</option>
                 <option value="last">{translate('last')}</option>
                 <option value="random">{translate('random')}</option>
                 <option value="spec">{translate('specify')}</option>
-            </select>
-            <select id="cat_pic_select" name="cat_pic_select" style="display:none;">
+            </select><br />
+        <div id="cat_pic_select_div" style="display:none;">
+        <label for="cat_pic_select">{translate('Category picture')}</label>
+            <select id="cat_pic_select" name="cat_pic_select">
              
             </select><br />
+        </div>
     </form>
 </div>
 
@@ -86,8 +90,27 @@ if(typeof jQuery != 'undefined') {
             }
         });
 
+        function fg_update_pic_select(cat_id) {
+            var section_id = $('input[name="section_id"]').val();
+            $.ajax({
+                type    : "GET",
+                url     :  CAT_URL + '/modules/blackGallery/ajax/get_pics.php',
+                dataType: 'json',
+                data    : { cat: cat_id, section_id: section_id },
+                cache   : false,
+                success : function( data, textStatus, jqXHR  )
+				{
+                    if ( data.success === true )
+					{
+                        $('select#cat_pic_select').html(data.imgs);
+                        $('#cat_pic_select_div').show();
+					}
+                }
+            });
+        }
+
         $('span.cat_is_active').click(function() {
-            var cat_id = $(this).parent().parent().parent().prop('id').replace('cat_','');
+            var cat_id = $(this).parent().parent().parent().find('div').prop('id').replace('div_cat_','');
             var _that  = $(this);
             $.ajax({
                 type    : "POST",
@@ -156,11 +179,12 @@ if(typeof jQuery != 'undefined') {
                     }
                 });
             }
-        }).disableSelection();
+       }).disableSelection();
 
         $('ul.cattree li').dblclick(function(event) {
             event.stopPropagation();
-            var cat_id = $(this).prop('id').replace('cat_','');
+            $('#cat_pic_select_div').hide();
+            var cat_id = $(this).find('div:first').prop('id').replace('div_cat_','');
             var _that  = $(this);
             var descr  = $( '#' + $(this).find('div').attr('aria-describedby') ).children().html();
             if(typeof descr=='undefined')
@@ -185,6 +209,14 @@ if(typeof jQuery != 'undefined') {
             {
                 $('div#options input#allow_fe_upload').prop('checked','');
             }
+            if( $('select#cat_pic_method').val() == 'spec') {
+                fg_update_pic_select(cat_id);
+            }
+            $('select#cat_pic_method').change( function() {
+                if( $(this).val() == 'spec') {
+                    fg_update_pic_select(cat_id);
+                }
+            });
             if(typeof $.uniform != 'undefined') {
                 $.uniform.update('input#is_active');
                 $.uniform.update('input#allow_fe_upload');

@@ -1,14 +1,19 @@
 <div id="lbox_settings">
 
-    <button id="fgDelLB" style="float:right;" class="icon icon-minus">
-        {translate('Remove this plugin')}
-    </button>
-    <button id="fgAddLB" style="float:right;" class="icon icon-plus">
-        {translate('Add jQuery plugin')}
-    </button>
+    <div style="float:right;width:363px;">
+        <button id="fgDelLB" style="float:right;" class="icon icon-minus">
+            {translate('Remove this plugin')}
+        </button>
+        <button id="fgAddLB" style="float:right;" class="icon icon-plus">
+            {translate('Add jQuery plugin')}
+        </button><br style="clear:right;" /><br />
+        <span>{translate('If you need to add a jQuery Plugin first, please use the jQuery Plugin Manager Admin Tool.')}</span>
+    </div>
 
-    <span class="label">{translate('Lightbox name')}</span>
-        <span class="rounded border" style="width:300px;margin-left:23px;padding-left:5px;">{$lbox_name}</span>
+    <span class="label offset">{translate('Lightbox')}</span>
+        <select id="lightbox_name" name="lightbox_name" class="rounded">
+        {foreach $lboxes name ignore}<option value="{$name}"{if $name == $lbox_name} selected="selected"{/if}>{$name}</option>{/foreach}
+        </select>
         <br />
 
     <span class="label">{translate('Javascript files')}</span>
@@ -48,16 +53,20 @@
         <input type="hidden" name="page_id" value="{$page_id}" />
         <input type="hidden" name="do" value="lbox" />
         <input type="hidden" name="save" value="1" />
-
-            <label for="global">{translate('Globally available')}</label>
+            <label for="global" class="offset">{translate('Globally available')}</label>
                 <input type="checkbox" name="global" id="global" value="1" title="{translate('can be used in all blackGallery sections')}"{if $lbox_section==0} checked="checked"{/if} />
-                
-        <br />
-
+            <br />
             <label for="lbox_code">{translate('Javascript code')}</label>
                 <textarea id="lbox_code" name="lbox_code">{$lbox_code}</textarea><br />
-            <label for="lbox_template">{translate('Output template')}</label>
-                <textarea id="lbox_template" name="lbox_template">{$lbox_template}</textarea><br />
+            <span class="label offset">{translate('Use default output template')}</span>
+                <input type="radio" name="use_default_template" id="use_default_template_yes" value="y"{if $lbox_use_def == 'Y'} checked="checked"{/if} />
+                    <label class="small" for="use_default_template_yes">{translate('Yes')}</label>
+                <input type="radio" name="use_default_template" id="use_default_template_no" value="n"{if $lbox_use_def == 'N'} checked="checked"{/if} />
+                    <label class="small" for="use_default_template_no">{translate('No')}</label><br />
+            <div id="lbox_template_input"{if $lbox_use_def == 'Y'} style="display:none;"{/if}>
+                <label for="lbox_template">{translate('Output template')}</label>
+                    <textarea id="lbox_template" name="lbox_template">{$lbox_template}</textarea><br />
+            </div>
             <button class="button" id="fgSave">
                 {translate('Save')}
             </button>
@@ -93,7 +102,9 @@
     <div style="display:none;" id="dlgAddLB">
         <select id="newlb">
             {foreach $jq_plugins item}<option value="{$item}">{$item}</option>{/foreach}
-        </select>
+        </select><br />
+        {translate('Activate as current Lightbox')}
+        <input type="checkbox" id="activate_new_lb" value="y" />
     </div>
 
     <div style="display:none;" id="dlgAlert">
@@ -109,13 +120,31 @@
                 lineNumbers: true,
                 mode: "text/javascript"
             });
+        var editor2 = CodeMirror.fromTextArea(
+            document.getElementById("lbox_template"),
+            {
+                lineNumbers: true,
+                mode: "text/html"
+            });
     }
     if ( typeof jQuery != 'undefined' ) {
         jQuery(document).ready(function($) {
+            $('#use_default_template_no').click(function(e) {
+                $('#lbox_template_input').show();
+            });
+            $('#use_default_template_yes').click(function(e) {
+                $('#lbox_template_input').hide();
+            });
+            $('select#lightbox_name').change(function(e) {
+                $('body').append('<div id="fade"></div>');
+                $('#fade').fadeIn();
+                window.location = CAT_ADMIN_URL + '/pages/modify.php?page_id={$page_id}&do=lbox&lbox_name=' + $(this).val();
+            });
             $('button#fgAddLB').click(function(e) {
                 e.preventDefault();
                 $('div#dlgAddLB').dialog({
                     modal:true
+                    ,width: 600
                     ,buttons: {
                         "{translate('Save')}": function() {
                             $(this).dialog("close");
@@ -126,7 +155,9 @@
             					dataType:	'json',
             					data:		{
                                     section_id : '{$section_id}',
-                                    new_lb     : $('div#dlgAddLB').find('select:first').val()
+                                    new_lb     : $('div#dlgAddLB').find('select:first').val(),
+                                    activate   : $('div#dlgAddLB').find('#activate_new_lb').val(),
+                                    _cat_ajax  : 1
                                 },
             					cache:		false,
             					beforeSend:	function( data )
@@ -152,6 +183,25 @@
                     }
                 });
             });
+            $('button#fgDelLB').click(function(e) {
+                e.preventDefault();
+                $('div#dlgAlert').html(
+                    '<span class="icon icon-warning" style="float:left;margin:0 7px 40px 0;color:#f00;font-size:1.4em;text-shadow: 3px 3px 3px #ccc;"></span>' +
+                    '{translate("Do you really want to remove this Lightbox?")}'
+                ).dialog({
+                    modal: true,
+                    title: cattranslate('Are you sure?'),
+                    buttons: {
+                        "{translate('Yes')}": function() {
+                            $(this).dialog('close');
+                            window.location = CAT_ADMIN_URL + '/pages/modify.php?page_id={$page_id}&do=lbox&del=' + $('select#lightbox_name').val();
+                        },
+                        "{translate('No')}": function() {
+                            $(this).dialog('close');
+                        }
+                    }
+                });
+            });
             $('span.fgDelJS').click(function(e) {
                 var filename = $(this).parent().find('span.lbox_js').prop('title');
                 $.ajax(
@@ -161,7 +211,8 @@
 					dataType:	'json',
 					data:		{
                         section_id : '{$section_id}',
-                        del_js_file: filename
+                        del_js_file: filename,
+                        _cat_ajax  : 1
                     },
 					cache:		false,
 					beforeSend:	function( data )
@@ -196,7 +247,8 @@
             					dataType:	'json',
             					data:		{
                                     section_id : '{$section_id}',
-                                    add_js_file: $('div#dlgAddJS').find('select:first').val()
+                                    add_js_file: $('div#dlgAddJS').find('select:first').val(),
+                                    _cat_ajax  : 1
                                 },
             					cache:		false,
             					beforeSend:	function( data )
@@ -231,7 +283,8 @@
 					dataType:	'json',
 					data:		{
                         section_id : '{$section_id}',
-                        del_css_file: filename
+                        del_css_file: filename,
+                        _cat_ajax  : 1
                     },
 					cache:		false,
 					beforeSend:	function( data )
@@ -268,6 +321,7 @@
                                     section_id  : '{$section_id}',
                                     add_css_file: $('div#dlgAddCSS').find('select:first').val(),
                                     media       : $('div#dlgAddCSS').find('select[name="dlgAddCSSMedia"]').val(),
+                                    _cat_ajax   : 1
                                 },
             					cache:		false,
             					beforeSend:	function( data )
@@ -299,7 +353,11 @@
                 if(typeof editor != 'undefined') {
                     js_code = editor.getValue();
                 }
-                if( js_code != '' || $('#lbox_template').val() != '' || $('global').val() != '' )
+                var tpl_code = $('#lbox_template').val();
+                if(typeof editor2 != 'undefined') {
+                    tpl_code = editor2.getValue();
+                }
+                if( js_code != '' || tpl_code != '' || $('global').val() != '' )
                 {
                     $.ajax(
     				{
@@ -309,7 +367,9 @@
     					data:		{
                             section_id  : '{$section_id}',
                             js_code     : js_code,
-                            template    : $('#lbox_template').val()
+                            template    : tpl_code,
+                            _cat_ajax   : 1,
+                            lbox_use_default: $('#use_default_template_yes:checked').val(),
                         },
     					cache:		false,
     					beforeSend:	function( data )

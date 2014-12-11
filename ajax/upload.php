@@ -15,8 +15,8 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *   @author          BlackBird Webprogrammierung
- *   @copyright       2013, Black Cat Development
- *   @link            http://blackcat-cms.org
+ *   @copyright       2014, BlackBird Webprogrammierung
+ *   @link            http://www.webbird.de
  *   @license         http://www.gnu.org/licenses/gpl.html
  *   @category        CAT_Modules
  *   @package         blackGallery
@@ -39,36 +39,37 @@ if (defined('CAT_PATH')) {
     if (!$inc) trigger_error(sprintf("[ <b>%s</b> ] Can't include class.secure.php!", $_SERVER['SCRIPT_NAME']), E_USER_ERROR);
 }
 
-global $section_id, $fg_settings;
+global $section_id, $bg_settings;
 $section_id = CAT_Helper_Validate::sanitizePost('section_id');
 include dirname(__FILE__).'/../init.php';
-include dirname(__FILE__).'/../inc/class_foldergallery.inc.php';
+include dirname(__FILE__).'/../inc/blackGallery.inc.php';
 
-$dir    = CAT_Helper_Directory::sanitizePath(CAT_PATH.'/'.blackGallery::$fg_settings['root_dir']);
+$dir    = CAT_Helper_Directory::sanitizePath(CAT_PATH.'/'.blackGallery::$bg_settings['root_dir']);
 $cat    = CAT_Helper_Validate::sanitizePost('cat_id');
-$folder = str_ireplace( CAT_Helper_Directory::sanitizePath(blackGallery::$fg_settings['root_dir']), '', blackGallery::fgGetCatPath($cat));
+$folder = str_ireplace( CAT_Helper_Directory::sanitizePath(blackGallery::$bg_settings['root_dir']), '', blackGallery::bgGetCatPath($cat));
 
 list( $ok, $errors ) = CAT_Helper_Upload::uploadAll(
     'files',
     utf8_decode(CAT_Helper_Directory::sanitizePath($dir.'/'.$folder)),
     true,
-    (blackGallery::$fg_settings['allow_overwrite']=='no' ? false : true)
+    (blackGallery::$bg_settings['allow_overwrite']=='no' ? false : true)
 );
 
 print_r($ok);
-print_r($errors);
-exit;
 
 if(!count($errors) && count($ok))
 {
     foreach($ok as $file => $size)
     {
-        $database->query(sprintf(
-            'INSERT INTO `%smod_blackgallery_images` ( `section_id`,  `cat_id`,  `file_name`,  `file_size`,  `position`,  `is_active` )
-            VALUES ( "%d", "%d", "%s", "%s", 0, 1 )',
-            CAT_TABLE_PREFIX, $section_id, $cat, $file, $size
-        ));
+        blackGallery::getDB()->insert(
+            array(
+                'tables' => 'mod_blackgallery_images',
+                'fields' => array('section_id','cat_id','file_name','file_size','position','is_active'),
+                'values' => array($section_id,$cat,$file,$size,0,1),
+            )
+        );
     }
+    blackGallery::bgUpdateThumbs($cat);
 }
 
 print json_encode(array(

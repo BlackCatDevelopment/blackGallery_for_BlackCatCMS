@@ -15,8 +15,8 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *   @author          BlackBird Webprogrammierung
- *   @copyright       2013, Black Cat Development
- *   @link            http://blackcat-cms.org
+ *   @copyright       2014, BlackBird Webprogrammierung
+ *   @link            http://www.webbird.de
  *   @license         http://www.gnu.org/licenses/gpl.html
  *   @category        CAT_Modules
  *   @package         blackGallery
@@ -39,3 +39,17 @@ if (defined('CAT_PATH')) {
     if (!$inc) trigger_error(sprintf("[ <b>%s</b> ] Can't include class.secure.php!", $_SERVER['SCRIPT_NAME']), E_USER_ERROR);
 }
 
+// renamed (v0.9)
+if(file_exists(CAT_Helper_Directory::sanitizePath(CAT_PATH.'/modules/blackGallery/inc/class_foldergallery.inc.php')))
+    unlink(CAT_Helper_Directory::sanitizePath(CAT_PATH.'/modules/blackGallery/inc/class_foldergallery.inc.php'));
+// moved (v0.9)
+if(file_exists(CAT_Helper_Directory::sanitizePath(CAT_PATH.'/modules/blackGallery/css/frontend.css')))
+    unlink(CAT_Helper_Directory::sanitizePath(CAT_PATH.'/modules/blackGallery/css/frontend.css'));
+$database->query(
+    "ALTER TABLE `:prefix:mod_blackgallery_categories`
+	CHANGE COLUMN `allow_fe_upload` `allow_fe_upload` ENUM('no','everyone','be_users') NOT NULL DEFAULT 'no' AFTER `is_empty`;"
+);
+$database->query(
+    "ALTER TABLE `:prefix:cat_mod_blackgallery_images`
+	CHANGE COLUMN `caption` `caption` TEXT NULL AFTER `position`;"
+);

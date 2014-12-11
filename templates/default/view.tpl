@@ -1,25 +1,29 @@
-<div class="mod_blackgallery">
-    <div class="title rounded gradient1 shadow">
-        <h1>{$settings.view_title}</h1>
-        {if $current_cat}<h3>{$current_cat}</h3>{/if}
-        {if $path}
-        <div class="breadcrumb">
-        <a href="{$PAGE_LINK}">{translate('Root')}</a>
-        {foreach $path item}
-        <a href="{$PAGE_LINK}{$item.folder_name}">{$item.cat_name}</a>
-        {/foreach}
-        </div>
-        {/if}
-    </div>
-    {if $categories}
+{include "fe_header.tpl"}
+
+{if $categories}
     <div class="mod_blackgallery_wrapper">
-        {include categories.tpl}
+        <ul class="bgCategories">
+            {foreach $categories cat}
+        	<li class="bgCat rounded" style="width:{$li_width}px;height:{$li_height}px;">
+                <a style="line-height:{$settings.thumb_height}px;" href="{$PAGE_LINK}{$cat.folder_name}"{if ! $cat.cat_pic} class="info"{/if}>
+                    {if $cat.cat_pic}
+                    <img src="{$BASE_URL}{$cat.cat_pic}" />
+                    {else}
+                    {translate('No picture(s)')}
+                    {/if}
+            		<span class="caption rounded gradient1">{if $cat.cat_name}{$cat.cat_name}{else}{$cat.folder_name}{/if}</span>
+                </a>
+        	</li>
+            {/foreach}
+        </ul>
     </div>
-    <br clear="left" />
-    {/if}
-    {if $images}
+{/if}
+
+{if $images}
+    <br style="clear:both;" />
     <div class="mod_blackgallery_wrapper">
         {include lightbox.tpl}
     </div>
-    {/if}
-</div>
+{/if}
+
+{include "fe_footer.tpl"}

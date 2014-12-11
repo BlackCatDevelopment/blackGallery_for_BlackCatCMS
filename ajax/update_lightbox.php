@@ -15,8 +15,8 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *   @author          BlackBird Webprogrammierung
- *   @copyright       2013, Black Cat Development
- *   @link            http://blackcat-cms.org
+ *   @copyright       2014, BlackBird Webprogrammierung
+ *   @link            http://www.webbird.de
  *   @license         http://www.gnu.org/licenses/gpl.html
  *   @category        CAT_Modules
  *   @package         blackGallery
@@ -54,14 +54,36 @@ $val        = CAT_Helper_Validate::getInstance();
 $section_id = $val->sanitizePost('section_id');
 
 include dirname(__FILE__).'/../init.php';
-include dirname(__FILE__).'/../inc/class_foldergallery.inc.php';
+include dirname(__FILE__).'/../inc/blackGallery.inc.php';
 
-$lbox = blackGallery::fgGetLightbox(); // current details
-$name = blackGallery::$fg_settings['lightbox'];
+$name = blackGallery::$bg_settings['lightbox'];
+$lbox = blackGallery::bgGetLightbox($name); // current details
 
 // Add JS
 if($val->sanitizePost('add_js_file')!='')
+    fgAddJSFile($val,$lbox,$name);
+// Remove JS
+if($val->sanitizePost('del_js_file')!='')
+    fgDelJSFile($val,$lbox,$name);
+// Add CSS
+if($val->sanitizePost('add_css_file')!='')
+    fgAddCSSFile($val,$lbox,$name);
+// remove css
+if($val->sanitizePost('del_css_file')!='')
+    fgDelCSSFile($val,$lbox,$name);
+// JS code
+if($val->sanitizePost('js_code') !='' || $val->sanitizePost('template') != '' )
+    fgSetCode($val,$name);
+// add new lightbox
+if($val->sanitizePost('new_lb')!='')
+    fgAddPlugin($val,$name,$section_id);
+
+/**
+ * add JavaScript
+ **/
+function fgAddJSFile($val,$lbox,$name)
 {
+    global $database;
     $file = $val->sanitizePost('add_js_file'); // file to add
     if(is_array($lbox['js']) && count($lbox['js']) && in_array($file,$lbox['js']))
     {
@@ -81,8 +103,8 @@ if($val->sanitizePost('add_js_file')!='')
                  : array();
             array_push($new,CAT_Helper_Directory::sanitizePath('/modules/lib_jquery/plugins/'.$file));
             $q   = sprintf(
-                'UPDATE `%smod_blackgallery_lboxes` SET `lbox_js`=\'%s\' WHERE `lbox_name`="%s"',
-                CAT_TABLE_PREFIX, serialize($new), $name
+                'UPDATE `:prefix:mod_blackgallery_lboxes` SET `lbox_js`=\'%s\' WHERE `lbox_name`="%s"',
+                serialize($new), $name
             );
             $database->query($q);
             print json_encode(array(
@@ -102,16 +124,19 @@ if($val->sanitizePost('add_js_file')!='')
     }
 }
 
-// Remove JS
-if($val->sanitizePost('del_js_file')!='')
+/**
+ * delete Javascript
+ **/
+function fgDelJSFile($val,$lbox,$name)
 {
+    global $database;
     $file = $val->sanitizePost('del_js_file'); // file to remove
     if( false !== ( $i = array_search($file,$lbox['js'])) )
     {
         array_splice($lbox['js'],$i,1);
         $q   = sprintf(
-            'UPDATE `%smod_blackgallery_lboxes` SET `lbox_js`=\'%s\' WHERE `lbox_name`="%s"',
-            CAT_TABLE_PREFIX, serialize($lbox['js']), $name
+            'UPDATE `:prefix:mod_blackgallery_lboxes` SET `lbox_js`=\'%s\' WHERE `lbox_name`="%s"',
+            serialize($lbox['js']), $name
         );
         $database->query($q);
         print json_encode(array(
@@ -122,9 +147,13 @@ if($val->sanitizePost('del_js_file')!='')
     }
 }
 
-// Add CSS
-if($val->sanitizePost('add_css_file')!='')
+/**
+ * add CSS
+ **/
+function fgAddCSSFile($val,$lbox,$name)
 {
+    global $database;
+
     $file  = $val->sanitizePost('add_css_file'); // file to add
     $media = $val->sanitizePost('media');
 
@@ -149,8 +178,8 @@ if($val->sanitizePost('add_css_file')!='')
             $new = $lbox['css'];
             array_push($new,array('media'=>$media,'file'=> str_ireplace( CAT_Helper_Directory::sanitizePath(CAT_PATH),'',CAT_Helper_Directory::sanitizePath($base.$file) )));
             $q   = sprintf(
-                'UPDATE `%smod_blackgallery_lboxes` SET `lbox_css`=\'%s\' WHERE `lbox_name`="%s"',
-                CAT_TABLE_PREFIX, serialize($new), $name
+                'UPDATE `:prefix:mod_blackgallery_lboxes` SET `lbox_css`=\'%s\' WHERE `lbox_name`="%s"',
+                serialize($new), $name
             );
             $database->query($q);
             print json_encode(array(
@@ -166,20 +195,23 @@ if($val->sanitizePost('add_css_file')!='')
         'message' => $val->lang()->translate('File not found!')
     ));
     exit();
-
 }
 
-// remove css
-if($val->sanitizePost('del_css_file')!='')
+/**
+ * remove CSS file
+ **/
+function fgDelCSSFile($val,$lbox,$name)
 {
+    global $database;
+
     $file = $val->sanitizePost('del_css_file'); // file to remove
     foreach($lbox['css'] as $i => $item) {
         if($item['file'] == $file)
         {
             array_splice($lbox['css'],$i,1);
             $q   = sprintf(
-                'UPDATE `%smod_blackgallery_lboxes` SET `lbox_css`=\'%s\' WHERE `lbox_name`="%s"',
-                CAT_TABLE_PREFIX, serialize($lbox['css']), $name
+                'UPDATE `:prefix:mod_blackgallery_lboxes` SET `lbox_css`=\'%s\' WHERE `lbox_name`="%s"',
+                serialize($lbox['css']), $name
             );
             $database->query($q);
             print json_encode(array(
@@ -196,30 +228,41 @@ if($val->sanitizePost('del_css_file')!='')
     exit();
 }
 
-// JS code
-if($val->sanitizePost('js_code') !='' || $val->sanitizePost('template') != '' )
+function fgSetCode($val,$name)
 {
+    global $database, $section_id;
+
     $new_code = $val->sanitizePost('js_code');
     $new_tpl  = $val->sanitizePost('template');
+
     $q   = sprintf(
-        'UPDATE `%smod_blackgallery_lboxes` SET `section_id`=\'%d\' WHERE `lbox_name`="%s"',
-        CAT_TABLE_PREFIX, ($val->sanitizePost('global')==1 ? 0 : $section_id), $name
+        'UPDATE `:prefix:mod_blackgallery_lboxes` SET `section_id`=\'%d\' WHERE `lbox_name`="%s"',
+        ($val->sanitizePost('global')==1 ? 0 : $section_id), $name
     );
     $database->query($q);
+
+    $q   = sprintf(
+        'UPDATE `:prefix:mod_blackgallery_lboxes` SET `lbox_use_default`=\'%s\' WHERE `lbox_name`="%s"',
+        ($val->sanitizePost('lbox_use_default')=='y' ? 'Y' : 'N'), $name
+    );
+    $database->query($q);
+
+    blackGallery::bgSetLightboxTpl();
+
     if($new_code != '')
     {
         $new_code = str_replace("'", "\'", $new_code);
         $q   = sprintf(
-            'UPDATE `%smod_blackgallery_lboxes` SET `lbox_code`=\'%s\' WHERE `lbox_name`="%s"',
-            CAT_TABLE_PREFIX, $new_code, $name
+            'UPDATE `:prefix:mod_blackgallery_lboxes` SET `lbox_code`=\'%s\' WHERE `lbox_name`="%s"',
+            $new_code, $name
         );
         $database->query($q);
     }
     if($new_tpl != '')
     {
         $q   = sprintf(
-            'UPDATE `%smod_blackgallery_lboxes` SET `lbox_template`=\'%s\' WHERE `lbox_name`="%s"',
-            CAT_TABLE_PREFIX, $new_tpl, $name
+            'UPDATE `:prefix:mod_blackgallery_lboxes` SET `lbox_template`=\'%s\' WHERE `lbox_name`="%s"',
+            $new_tpl, $name
         );
         $database->query($q);
     }
@@ -230,9 +273,10 @@ if($val->sanitizePost('js_code') !='' || $val->sanitizePost('template') != '' )
     exit();
 }
 
-// add new lightbox
-if($val->sanitizePost('new_lb')!='')
+function fgAddPlugin($val,$name,$section_id)
 {
+    global $database;
+
     $name = $val->sanitizePost('new_lb');
     if(!file_exists(CAT_Helper_Directory::sanitizePath(CAT_PATH.'/modules/lib_jquery/plugins/'.$name)))
     {
@@ -242,19 +286,39 @@ if($val->sanitizePost('new_lb')!='')
         ));
         exit();
     }
+    // find JS files
+    $js  = CAT_Helper_Directory::getInstance()
+           ->maxRecursionDepth(5)
+           ->setSuffixFilter(array('js'))
+           ->scanDirectory(CAT_PATH.'/modules/lib_jquery/plugins/'.$name,true,true,CAT_PATH);
+    // find CSS files
+    $css = CAT_Helper_Directory::getInstance()
+           ->maxRecursionDepth(5)
+           ->setSuffixFilter(array('css'))
+           ->scanDirectory(CAT_PATH.'/modules/lib_jquery/plugins/'.$name,true,true,CAT_PATH);
+    $css_files = array();
+    if(count($css))
+    {
+        foreach($css as $file)
+        {
+            $css_files[] = array('media'=>'screen,projection','file'=>$file);
+        }
+    }
+    // insert
     $q = sprintf(
-        'INSERT INTO `%smod_blackgallery_lboxes` ( `section_id`, `lbox_name`, `lbox_path` )
-        VALUES ( "%d", "%s", "%s" )',
-        CAT_TABLE_PREFIX, $section_id, $name, '/modules/lib_jquery/plugins/'.$name
+        'INSERT INTO `:prefix:mod_blackgallery_lboxes` (`section_id`,`lbox_name`,`lbox_path`,`lbox_js`,`lbox_css`,`lbox_code`,`lbox_template`)
+        VALUES ( "%d", "%s", "%s", \'%s\', \'%s\', \'\', \'\' )',
+        $section_id, $name, '/modules/lib_jquery/plugins/'.$name, serialize($js), serialize($css_files)
     );
     $database->query($q);
-    if(!$database->is_error())
+    if(!$database->is_error() && $val->sanitizePost('activate') == 'y')
     {
         $q = sprintf(
-            'UPDATE `%smod_blackgallery_settings` SET `set_value`="%s" WHERE `set_name`="%s"',
-            CAT_TABLE_PREFIX, $name, 'lightbox'
+            'UPDATE `:prefix:mod_blackgallery_settings` SET `set_value`="%s" WHERE `set_name`="%s"',
+            $name, 'lightbox'
         );
         $database->query($q);
+        blackGallery::bgSetLightboxTpl();
     }
     print json_encode(array(
         'success' => $database->is_error() ? false : true,

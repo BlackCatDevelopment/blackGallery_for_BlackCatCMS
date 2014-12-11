@@ -41,6 +41,8 @@ div#mod_blackgallery div#tabs div#inner form#fileupload.dropzone div.dz-preview 
 div#mod_blackgallery div#tabs div#inner .icon-cancel,div#mod_blackgallery div#tabs div#inner .icon-remove{color:red;text-shadow: 3px 3px 3px #ccc;}
 div#mod_blackgallery div#tabs div#inner .icon-checkmark{color:green;text-shadow: 3px 3px 3px #ccc;}
 div#mod_blackgallery div#tabs div#inner form fieldset span.tooltip{display:inline-block;margin-left:10px;margin-right:5px;vertical-align: top;}
+div#mod_blackgallery input.error{border:1px solid #f00;}
+div#mod_blackgallery label.error{font-weight:900;color:#f00;margin-left:260px;}
 /* categories tab */
 div#mod_blackgallery div#tabs div#inner table{width:98%;}
 div#mod_blackgallery div#tabs div#inner table td{padding:2px;}
@@ -48,15 +50,16 @@ div#mod_blackgallery div#tabs div#inner table th{font-weight:900;padding:5px;tex
 div#mod_blackgallery div#tabs div#inner table td span.small{font-size:0.8em;}
 /* lightbox tab */
 div#mod_blackgallery div#tabs div#inner span.lbox_js,
-div#mod_blackgallery div#tabs div#inner span.lbox_css{width:400px;padding-left:5px;}
+div#mod_blackgallery div#tabs div#inner span.lbox_css{width:480px;padding-left:5px;}
 div#mod_blackgallery div#tabs div#inner span.fgAdd,
 div#mod_blackgallery div#tabs div#inner span.fgDel{display:inline-block;padding:0;width:20px;height:20px;font-size:10px;text-align:center;background-color:#99cc66;vertical-align:middle;border-bottom:2px solid #669933;border-right:2px solid #669933;}
 div#mod_blackgallery div#tabs div#inner span.fgDel{background-color:#ffccCC;border-color:#ff3366;}
 div#mod_blackgallery div#lbox_settings input[type="text"],
 div#mod_blackgallery div#lbox_settings textarea,
-div#mod_blackgallery div#lbox_settings div.CodeMirror{width:600px;margin-left:23px;}
+div#mod_blackgallery div#lbox_settings div.CodeMirror{width:600px;margin-left:11px;}
 div#mod_blackgallery div#lbox_settings div.CodeMirror{display:inline-block;}
 div#mod_blackgallery div#lbox_settings textarea{min-height:200px;}
+div#mod_blackgallery div#lbox_settings .offset{margin-right:28px;}
 /* images tab */
 div#mod_blackgallery div#tabs div.preview,div#mod_blackgallery div#tabs div.heading{width:95%;padding:5px;border-bottom:1px dashed #aaa;display:block;min-height:30px;}
 div#mod_blackgallery div#tabs div.preview img{padding:5px;margin-right:10px;background-color:#eee;border:1px solid #aaa;display:inline-block;}
@@ -92,11 +95,11 @@ div#mod_blackgallery div#tabs div.fginfo{padding:5px;text-align:center;font-size
 div#mod_blackgallery div#tabs .fginfo .icon-warning{display:inline-block;height:100%;width:40px;font-size:3em;float:left;margin-top:18px;margin-left:10px;text-shadow: 3px 3px 3px #ccc;color:#FF9933;}
 /* tree view */
 /* found here: http://jsfiddle.net/Ljnhc/123/ */
-ul.cattree_0{padding:0 0 30px 0;margin:0;list-style-type:none;position:relative;width:97%;}
-ul.cattree_0 li{list-style-type:none;padding:0;margin:0;border-left:1px solid #aaa;margin-left:1em;}
-ul.cattree_0 li > div:hover{background-color:#eee;}
-ul.cattree_0 li > div{padding-left:1em;position:relative;display:inline-block;width:100%;}
-ul.cattree_0 li > div:before {content: '';position: absolute;top: 0;left: -1px;bottom: 50%;width: 0.75em;border: 1px solid #aaa;border-top: 0 none transparent;border-right: 0 none transparent;}
+ul.cattree_1{margin:0;list-style-type:none;position:relative;width:97%;}
+ul.cattree_1 li{list-style-type:none;padding:0;margin:0;border-left:1px solid #aaa;margin-left:1em;}
+ul.cattree_1 li > div:hover{background-color:#eee;}
+ul.cattree_1 li > div{padding-left:1em;position:relative;display:inline-block;width:100%;}
+ul.cattree_1 li > div:before {content: '';position: absolute;top: 0;left: -1px;bottom: 50%;width: 0.75em;border: 1px solid #aaa;border-top: 0 none transparent;border-right: 0 none transparent;}
 ul > li:last-child {border-left: 1px solid transparent;}
 /* placeholder for sortable; will be resized with JS */
 .ui-sortable-placeholder{border:1px dashed #aaa;min-height:30px;width:75%;background:#eee;}
@@ -105,3 +108,6 @@ div#mod_blackgallery div.fgactions{width:50%;float:right;border:0;}
 
 div#mod_blackgallery span{display:inline-block;}
 div#mod_blackgallery td, div#mod_blackgallery th, div#mod_blackgallery div.fgactions span{width:100px;}
+
+/* loading overlay */
+#fade {position: absolute;top:0px;left: 0px;display: none;width: 100%;height: 100%;z-index: 10;background:#a0a0a0 url(../images/loading15.gif) center center no-repeat;opacity: 0.8;}

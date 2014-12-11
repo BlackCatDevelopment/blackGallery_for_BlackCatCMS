@@ -20,7 +20,6 @@
         <img src="{$IMG_URL}/reload.png" /> {translate('Sync thumbs')}
     </button>
 </form><br />
-
 <form id="secselect" action="{$CAT_ADMIN_URL}/pages/modify.php" method="get">
     <input type="hidden" name="section_id" value="{$section_id}" />
     <input type="hidden" name="page_id" value="{$page_id}" />
@@ -44,7 +43,7 @@
 {foreach $images img}
     <div class="preview" id="img_{$img.pic_id}" style="min-height:{$settings.thumb_height}px;">
         <span class="img_is_active icon icon-{if $img.is_active=='0'}cancel{else}checkmark{/if}"></span>
-        <span class="icon icon-{if $img._has_thumb==false}cancel{else}checkmark{/if}" title="{translate('Thumbnail image')} {if $img._has_thumb==false}{translate('not')}{/if}{translate('available')}"></span>
+        <span class="icon icon-{if $img._has_thumb==false}cancel{else}checkmark{/if}" title="{translate('Thumbnail image')} {if $img._has_thumb==false}{translate('not')} {/if}{translate('available')}"></span>
         <span class="icon icon-tools"></span>
         <img src="{$BASE_URL}{$img.folder_name}/{if $img._has_thumb!=false}{$settings.thumb_foldername}/thumb_{$img.file_name}{else}{$img.file_name}{/if}" style="width:{$settings.thumb_width}px;" title="{$img.caption}" />
         <span class="dz-details rounded">
@@ -95,106 +94,7 @@
 <script charset="windows-1250" type="text/javascript">
 if(typeof jQuery != 'undefined') {
     jQuery(document).ready(function($) {
-        $('select#cat_id').on('change',function() {
-            $('form#secselect').submit();
-        });
-        var afterSend		= function()
-    	{
-    		location.reload(true);
-    	};
-        $('span.img_is_active').click(function(e) {
-            var action = '';
-            if($(this).hasClass('icon-checkmark'))
-            {
-                action = 'deactivate';
-            }
-            else
-            {
-                action = 'activate';
-            }
-            $.ajax(
-			{
-				type:		'POST',
-				url:		CAT_URL + '/modules/blackGallery/ajax/update_image.php',
-				dataType:	'json',
-				data:		{ pic_id: $(this).parent().prop('id').replace('img_',''), action: action },
-				cache:		false,
-				beforeSend:	function( data )
-				{
-					data.process	= set_activity( 'Saving...' );
-				},
-				success:	function( data, textStatus, jqXHR  )
-				{
-                    if ( data.success === true )
-				    {
-                        location.reload(true);
-                    }
-                    else {
-						return_error( jqXHR.process , data.message );
-					}
-                }
-            });
-        });
-        $('button#btn_sync_images').click(function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            $.ajax(
-			{
-				type:		'POST',
-				url:		CAT_URL + '/modules/blackGallery/ajax/sync_images.php',
-				dataType:	'json',
-				data:		$('form#form_sync_images').serialize(),
-				cache:		false,
-				beforeSend:	function( data )
-				{
-					data.process	= set_activity( 'Sync...' );
-				},
-				success:	function( data, textStatus, jqXHR  )
-				{
-                    if ( data.success === true )
-					{
-                        if(data.added > 0 || data.removed > 0)
-                        {
-                            $('div#fgDialog')
-                                .html(
-                                    '<span class="icon icon-info" style="float:left;margin:0 7px 40px 0;color:#407cb4;font-size:1.4em;text-shadow: 3px 3px 3px #ccc;"></span>' +
-                                    '{translate("Added")} ' + data.added + ' {translate("image(s)")}<br />' +
-                                    '{translate("Removed")} ' + data.removed + ' {translate("image(s)")}'
-                                ).dialog({
-                                    modal: true
-                                    ,buttons: {
-                                        "{translate('Close')}": function() {
-                                            $(this).dialog("close");
-                                        }
-                                    }
-                                });
-                            location.reload(true);
-                        }
-                        else
-                        {
-                            $('div#fgDialog')
-                                .html(
-                                    '<span class="icon icon-info" style="float:left;margin:0 7px 40px 0;color:#407cb4;font-size:1.4em;text-shadow: 3px 3px 3px #ccc;"></span>' +
-                                    '{translate("No changes found")}'
-                                 )
-                                .dialog({
-                                    modal: true
-                                    ,buttons: {
-                                        "{translate('Close')}": function() {
-                                            $(this).dialog("close");
-                                        }
-                                    }
-                                });
-                            return_success( jqXHR.process, data.message );
-                        }
-					}
-					else {
-						return_error( jqXHR.process , data.message );
-					}
-                }
-            });
-        });
-        $('span.icon-tools').click(function(event) {
+        function editpic(event) {
             event.stopPropagation();
             var pic_id = $(this).parent().prop('id').replace('img_','');
             var _that  = $(this).parent();
@@ -259,6 +159,112 @@ if(typeof jQuery != 'undefined') {
                     }
                 },
             });
+        }
+        $('select#cat_id').on('change',function() {
+            $('form#secselect').submit();
+        });
+        var afterSend		= function()
+    	{
+    		location.reload(true);
+    	};
+        $('span.img_is_active').click(function(e) {
+            var action = '';
+            if($(this).hasClass('icon-checkmark'))
+            {
+                action = 'deactivate';
+            }
+            else
+            {
+                action = 'activate';
+            }
+            $.ajax(
+			{
+				type:		'POST',
+				url:		CAT_URL + '/modules/blackGallery/ajax/update_image.php',
+				dataType:	'json',
+				data:		{ pic_id: $(this).parent().prop('id').replace('img_',''), action: action },
+				cache:		false,
+				beforeSend:	function( data )
+				{
+					data.process	= set_activity( 'Saving...' );
+				},
+				success:	function( data, textStatus, jqXHR  )
+				{
+                    if ( data.success === true )
+				    {
+                        location.reload(true);
+                    }
+                    else {
+						return_error( jqXHR.process , data.message );
+					}
+                }
+            });
+        });
+        $('button#btn_sync_images').click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $.ajax(
+			{
+				type:		'POST',
+				url:		CAT_URL + '/modules/blackGallery/ajax/sync_images.php',
+				dataType:	'json',
+				data:		$('form#form_sync_images').serialize(),
+				cache:		false,
+				beforeSend:	function( data )
+				{
+					data.process	= set_activity( 'Sync...' );
+				},
+				success:	function( data, textStatus, jqXHR  )
+				{
+                    if ( data.success === true )
+					{
+                        if(data.added > 0 || data.removed > 0)
+                        {
+                            $('div#fgDialog')
+                                .html(
+                                    '<span class="icon icon-info" style="float:left;margin:0 7px 40px 0;color:#407cb4;font-size:1.4em;text-shadow: 3px 3px 3px #ccc;"></span>' +
+                                    '{translate("Added")}   ' + data.added + ' {translate("image(s)")}<br />' +
+                                    '{translate("Removed")} ' + data.removed + ' {translate("image(s)")}<br />' +
+                                    '{translate("Errors")}  ' + data.errors
+                                ).dialog({
+                                    modal: true
+                                    ,buttons: {
+                                        "{translate('Close')}": function() {
+                                            $(this).dialog("close");
+                                        }
+                                    }
+                                });
+                            location.reload(true);
+                        }
+                        else
+                        {
+                            $('div#fgDialog')
+                                .html(
+                                    '<span class="icon icon-info" style="float:left;margin:0 7px 40px 0;color:#407cb4;font-size:1.4em;text-shadow: 3px 3px 3px #ccc;"></span>' +
+                                    '{translate("No changes found")}'
+                                 )
+                                .dialog({
+                                    modal: true
+                                    ,buttons: {
+                                        "{translate('Close')}": function() {
+                                            $(this).dialog("close");
+                                        }
+                                    }
+                                });
+                            return_success( jqXHR.process, data.message );
+                        }
+					}
+					else {
+						return_error( jqXHR.process , data.message );
+					}
+                }
+            });
+        });
+        $('div.preview').dblclick(function(event) {
+            $(this).find('span.icon-tools').trigger('click');
+        });
+        $('span.icon-tools').click(function(event) {
+            editpic.call(this, event);
         });
         $('span.icon-remove').click(function(e) {
             e.preventDefault();

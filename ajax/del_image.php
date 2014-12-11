@@ -15,8 +15,8 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *   @author          BlackBird Webprogrammierung
- *   @copyright       2013, Black Cat Development
- *   @link            http://blackcat-cms.org
+ *   @copyright       2014, BlackBird Webprogrammierung
+ *   @link            http://www.webbird.de
  *   @license         http://www.gnu.org/licenses/gpl.html
  *   @category        CAT_Modules
  *   @package         blackGallery
@@ -54,14 +54,14 @@ else
 {
     include dirname(__FILE__).'/../init.php';
     $pic_id = $val->sanitizePost('pic_id');
-    $data   = blackGallery::fgGetImage($pic_id);
-    $file   = CAT_Helper_Directory::sanitizePath(CAT_PATH.'/'.blackGallery::$fg_settings['root_dir'].'/'.$data['folder_name'].'/'.$data['file_name']);
+    $data   = blackGallery::bgGetImage($pic_id);
+    $file   = CAT_Helper_Directory::sanitizePath(CAT_PATH.'/'.blackGallery::$bg_settings['root_dir'].'/'.$data['folder_name'].'/'.$data['file_name']);
     if(file_exists($file))
     {
         unlink($file);
         $thumb = CAT_Helper_Directory::sanitizePath(
-            CAT_PATH.'/'.blackGallery::$fg_settings['root_dir'].'/'.$data['folder_name'].'/'
-            .blackGallery::$fg_settings['thumb_foldername'].'/'.$data['file_name']
+            CAT_PATH.'/'.blackGallery::$bg_settings['root_dir'].'/'.$data['folder_name'].'/'
+            .blackGallery::$bg_settings['thumb_foldername'].'/'.$data['file_name']
         );
         if(file_exists($thumb))
             unlink($thumb);

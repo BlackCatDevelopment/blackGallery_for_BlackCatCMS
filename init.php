@@ -15,8 +15,8 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *   @author          BlackBird Webprogrammierung
- *   @copyright       2013, Black Cat Development
- *   @link            http://blackcat-cms.org
+ *   @copyright       2014, BlackBird Webprogrammierung
+ *   @link            http://www.webbird.de
  *   @license         http://www.gnu.org/licenses/gpl.html
  *   @category        CAT_Modules
  *   @package         blackGallery
@@ -39,15 +39,26 @@ if (defined('CAT_PATH')) {
     if (!$inc) trigger_error(sprintf("[ <b>%s</b> ] Can't include class.secure.php!", $_SERVER['SCRIPT_NAME']), E_USER_ERROR);
 }
 
+// this is for later versions of BC where the wblib2 will be part of the core
+foreach(array('wbList','wbQuery','wbForms') as $comp) {
+    if(!class_exists('\wblib\\'.$comp,false)) {
+        if (file_exists(CAT_PATH.'/framework/wblib/'.$comp.'.php')) {
+            require_once CAT_PATH.'/framework/wblib/'.$comp.'.php';
+        } else {
+            require_once dirname(__FILE__).'/inc/wblib/'.$comp.'.php';
+        }
+    }
+}
+
 global $parser, $page_id, $section_id;
 $parser->setPath(dirname(__FILE__).'/templates/custom');
 $parser->setFallbackPath(dirname(__FILE__).'/templates/default');
 $parser->setGlobals(array(
-    'url' => $_SERVER['SCRIPT_NAME'].'?page_id='.$page_id,
+    'url'     => $_SERVER['SCRIPT_NAME'].'?page_id='.$page_id,
     'version' => CAT_Helper_Addons::getModuleVersion('blackGallery')
 ));
 
-require dirname(__FILE__).'/inc/class_foldergallery.inc.php';
+require_once dirname(__FILE__).'/inc/blackGallery.inc.php';
 
 if(!function_exists('fgGetSettings'))
 {
@@ -67,7 +78,7 @@ if(!function_exists('fgGetSettings'))
         {
             while( false !== ( $row = $r->fetchRow(MYSQL_ASSOC) ) )
             {
-                blackGallery::$fg_settings[$row['set_name']] = $row['set_value'];
+                blackGallery::$bg_settings[$row['set_name']] = $row['set_value'];
             }
         }
     }

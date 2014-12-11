@@ -39,53 +39,37 @@ if (defined('CAT_PATH')) {
     if (!$inc) trigger_error(sprintf("[ <b>%s</b> ] Can't include class.secure.php!", $_SERVER['SCRIPT_NAME']), E_USER_ERROR);
 }
 
-$user = CAT_Users::getInstance();
+include dirname(__FILE__).'/../init.php';
 
-$root_dir = ( $user->get_user_id() == 1 || (HOME_FOLDERS && $user->get_home_folder()=='') || !HOME_FOLDERS )
-          ? MEDIA_DIRECTORY
-          : $dirh->sanitizePath(MEDIA_DIRECTORY.$user->get_home_folder())
-          ;
-$root_dir = CAT_Helper_Directory::sanitizePath($root_dir.'/blackGallery');
-if(!CAT_Helper_Directory::isDir($root_dir))
-    CAT_Helper_Directory::createDirectory($root_dir);
+$cat = $_GET['cat'];
+if(!$cat || !is_numeric($cat) || $cat == '' )
+    echo json_encode( array( 'success' => 'false' ) );
 
-$defaults = array(
-    'allow_fe_upload'  => 0,
-    'allow_overwrite'  => 1,
-    'allowed_suffixes' => '',
-    'cat_pic'          => 'random',
-    'categories_title' => 'Categories',
-    'default_action'   => 'options',
-    'default_cat'      => '',
-    'exclude_dirs'     => '',
-    'images_title'     => 'Images',
-    'lightbox'         => 'Slimbox2',
-    'max_file_size'    => '10000',
-    'resize'           => 'original',
-    'root_dir'         => $root_dir,
-    'show_empty'       => 0,
-    'thumb_foldername' => '.thumbs',
-    'thumb_height'     => 80,
-    'thumb_method'     => 'fit',
-    'thumb_width'      => 80,
-    'use_skin'         => 'default',
-    'view_title'       => 'blackGallery',
-);
+$section_id = $_GET['section_id'];
+if(!$section_id || !is_numeric($section_id) || $section_id == '' )
+    echo json_encode( array( 'success' => 'false' ) );
 
-foreach($defaults as $key => $value )
-{
-    $q = sprintf(
-        'INSERT INTO `%smod_blackgallery_settings` ( `section_id`, `set_name`, `set_value` ) VALUES
-        ( "%d", "%s", "%s" )',
-        CAT_TABLE_PREFIX, $section_id, $key, $value
-    );
-    $database->query($q);
+$imgs   = blackGallery::bgGetImages($section_id,$cat,false);
+$output = array();
+
+foreach($imgs as $img) {
+    $output[] = "<option value=\"".$img['file_name']."\">".$img['file_name']."</option>";
 }
 
-// create root cat
-$database->query(sprintf(
-      'INSERT IGNORE INTO `:prefix:mod_blackgallery_categories` '
-    . '( `section_id`, `folder_name`, `cat_name`, `description`, `level` ) VALUES '
-    . '( "%d", "%s", "%s", "%s", "%s" )',
-    $section_id, '/', "Root", "Gallery root", "-1"
-));
+echo json_encode( array(
+        'success' => true,
+        'imgs'    => implode("\n",utf8_encode_all($output))
+    ),
+    JSON_UNESCAPED_UNICODE
+);
+exit();
+
+// http://de1.php.net/manual/de/function.json-encode.php#100492
+function utf8_encode_all($dat) // -- It returns $dat encoded to UTF8
+{
+    if (is_string($dat)) return utf8_encode($dat);
+    if (!is_array($dat)) return $dat;
+    $ret = array();
+    foreach($dat as $i=>$d) $ret[$i] = utf8_encode_all($d);
+    return $ret;
+}

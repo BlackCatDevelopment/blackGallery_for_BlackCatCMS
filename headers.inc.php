@@ -15,8 +15,8 @@
  *   along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  *   @author          BlackBird Webprogrammierung
- *   @copyright       2013, Black Cat Development
- *   @link            http://blackcat-cms.org
+ *   @copyright       2014, BlackBird Webprogrammierung
+ *   @link            http://www.webbird.de
  *   @license         http://www.gnu.org/licenses/gpl.html
  *   @category        CAT_Modules
  *   @package         blackGallery
@@ -42,16 +42,14 @@ if (defined('CAT_PATH')) {
 $mod_headers = array(
     'frontend' => array(
         'jquery' => array(
-			array(
-				'core'			=> true,
-				'ui'			=> true,
-			)
-		),
+            array(
+                'core' => true,
+                'ui'   => true,
+            )
+        ),
     ),
     'backend' => array(
-        'js' => array(
-            '/modules/blackGallery/js/nestedSortable/jquery.nestedSortable.js',
-        ),
+        'js'  => array(),
         'css' => array()
     ),
 );
@@ -83,6 +81,7 @@ if(CAT_Backend::isBackend())
         {
             array_push($mod_headers['backend']['js'],'/modules/ckeditor4/ckeditor/plugins/codemirror/js/codemirror.js');
             array_push($mod_headers['backend']['js'],'/modules/ckeditor4/ckeditor/plugins/codemirror/js/javascript.js');
+            array_push($mod_headers['backend']['js'],'/modules/ckeditor4/ckeditor/plugins/codemirror/js/xml.js');
             array_push($mod_headers['backend']['css'], array('media' => 'screen', 'file' => '/modules/ckeditor4/ckeditor/plugins/codemirror/css/codemirror.css') );
         }
     }
@@ -93,18 +92,26 @@ else
     global $current_section;
 
     include dirname(__FILE__).'/init.php';
-    include dirname(__FILE__).'/inc/class_foldergallery.inc.php';
+    include dirname(__FILE__).'/inc/blackGallery.inc.php';
 
-    $lboxes = blackGallery::fgGetLightboxes();
-    $name   = blackGallery::$fg_settings['lightbox'];
+    $lboxes = blackGallery::bgGetLightboxes();
+    $name   = blackGallery::$bg_settings['lightbox'];
+    $skin   = blackGallery::$bg_settings['use_skin'];
 
     if( isset( $lboxes[$name] ) )
     {
-        $lbox_data = blackGallery::fgGetLightbox();
+        $lbox_data = blackGallery::bgGetLightbox($name);
         if(isset($lbox_data['css']))
             $mod_headers['frontend']['css'] = $lbox_data['css'];
         if(isset($lbox_data['js']))
             $mod_headers['frontend']['js'] = $lbox_data['js'];
     }
-}
 
+    if($skin && file_exists(dirname(__FILE__).'/css/'.$skin.'/frontend.css'))
+    {
+        $mod_headers['frontend']['css'][] = array(
+            'file' => '/modules/blackGallery/css/'.$skin.'/frontend.css'
+        );
+    }
+
+}
